@@ -1,0 +1,74 @@
+{
+  "name": "solana-quiz",
+  "version": "1.0.0",
+  "description": "The Solana Quiz application",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "copy": "cp -pr ./src/locales/ ./dist/",
+    "build": "NODE_ENV=development npm i && ./node_modules/typescript/bin/tsc && npm run copy",
+    "server": "node ./dist/server.js",
+    "start:dev": "npm run build && npm run server",
+    "start:prod": "npm run build && NODE_ENV=production npm i && npm run server",
+    "nodemon:dev": "NODE_ENV=development npm i && npx nodemon --watch \"*.ts\" --exec \"ts-node\" ./src/server.ts",
+    "nodemon:prod": "NODE_ENV=production npm i && npx nodemon --watch \"*.ts\" --exec \"ts-node\" ./src/server.ts",
+    "lint": "eslint src/**/*.ts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/di-zed/solana-quiz.git"
+  },
+  "keywords": [
+    "dized",
+    "solana",
+    "quiz",
+    "telegram",
+    "bot",
+    "react",
+    "node",
+    "rust",
+    "redis",
+    "kafka",
+    "websocket"
+  ],
+  "author": "DiZed Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/di-zed/solana-quiz/issues"
+  },
+  "homepage": "https://github.com/di-zed/solana-quiz#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-ruid": "^1.1.5",
+    "helmet": "^8.0.0",
+    "hpp": "^0.2.3",
+    "i18n": "^0.15.1",
+    "install": "^0.13.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "npm": "^11.2.0",
+    "redis": "^4.7.0",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
+    "@types/express": "^5.0.0",
+    "@types/hpp": "^0.2.6",
+    "@types/i18n": "^0.13.12",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.13.10",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
+}

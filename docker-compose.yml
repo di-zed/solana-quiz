@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  rust:
+    container_name: rust-sq
+    build:
+      context: ./images/rust
+    command: /bin/bash
+    hostname: docker-rust
+    ports:
+      - "${RUST_HOST_PORT}:${RUST_CONTAINER_PORT}"
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./rust:/home/app
+      - ./.env:/home/app/.env
+      - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
+      - ./volumes/root/.cargo/registry:/root/.cargo/registry
+      - ./volumes/root/bash_history/rust:/root/.bash_history
+    working_dir: /home/app
+    networks:
+      - internal
+
+  node:
+    container_name: node-sq
+    build:
+      context: ./images/node
+    command: npm run start:prod
+    hostname: docker-node
+    ports:
+      - '${NODE_HOST_PORT}:${NODE_CONTAINER_PORT}'
+    volumes:
+      - ./node:/home/app
+      - ./.env:/home/app/.env
+      - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
+      - ./volumes/root/bash_history/node:/root/.bash_history
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    working_dir: /home/app
+    depends_on:
+      - redis
+      - rust
+    networks:
+      - internal
+
+  redis:
+    container_name: redis-sq
+    image: redis:7.4.5
+    command: redis-server /usr/local/etc/redis/redis.conf
+    hostname: docker-redis
+    ports:
+      - '${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}'
+    volumes:
+      - redis_data:/data
+      - redis_run:/run
+      - ./volumes/usr/local/etc/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - internal
+
+volumes:
+  redis_data:
+  redis_run:
+
+networks:
+  internal:
+    driver: bridge
