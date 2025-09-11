@@ -1,6 +1,27 @@
 version: '3.9'
 
 services:
+
+  postgres:
+    container_name: postgres-sq
+    build:
+      context: ./images/postgres
+    hostname: docker-postgres
+    ports:
+      - "${POSTGRES_HOST_PORT}:${POSTGRES_CONTAINER_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
+      - ./volumes/root/bash_history/postgres:/root/.bash_history:delegated
+      - ./mounted:/home/mounted
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    working_dir: /home/mounted
+    networks:
+      - internal
+
   rust:
     container_name: rust-sq
     build:
@@ -16,30 +37,10 @@ services:
       - ./.env:/home/app/.env
       - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
       - ./volumes/root/.cargo/registry:/root/.cargo/registry
-      - ./volumes/root/bash_history/rust:/root/.bash_history
-    working_dir: /home/app
-    networks:
-      - internal
-
-  node:
-    container_name: node-sq
-    build:
-      context: ./images/node
-    command: npm run start:prod
-    hostname: docker-node
-    ports:
-      - '${NODE_HOST_PORT}:${NODE_CONTAINER_PORT}'
-    volumes:
-      - ./node:/home/app
-      - ./.env:/home/app/.env
-      - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
-      - ./volumes/root/bash_history/node:/root/.bash_history
-    environment:
-      NODE_ENV: ${NODE_ENV}
+      - ./volumes/root/bash_history/rust:/root/.bash_history:delegated
     working_dir: /home/app
     depends_on:
-      - redis
-      - rust
+      - postgres
     networks:
       - internal
 
@@ -57,7 +58,31 @@ services:
     networks:
       - internal
 
+  node:
+    container_name: node-sq
+    build:
+      context: ./images/node
+    command: npm run start:prod
+    hostname: docker-node
+    ports:
+      - '${NODE_HOST_PORT}:${NODE_CONTAINER_PORT}'
+    volumes:
+      - ./node:/home/app
+      - ./.env:/home/app/.env
+      - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
+      - ./volumes/root/bash_history/node:/root/.bash_history:delegated
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    working_dir: /home/app
+    depends_on:
+      - rust
+      - redis
+    networks:
+      - internal
+
 volumes:
+  postgres_data:
+
   redis_data:
   redis_run:
 

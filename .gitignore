@@ -1,3 +1,5 @@
+mounted/*
+
 node/dist/*
 node/node_modules
 
