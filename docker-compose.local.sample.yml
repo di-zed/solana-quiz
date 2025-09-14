@@ -1,5 +1,9 @@
 version: '3.9'
 
 services:
+
   node:
     command: npm run nodemon:dev
+
+  front:
+    command: npm run dev

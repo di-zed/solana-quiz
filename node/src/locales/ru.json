@@ -1,1 +1,4 @@
-{}
+{
+	"Can not find \"%s\" on this server!": "Can not find \"%s\" on this server!",
+	"Something went wrong!": "Something went wrong!"
+}

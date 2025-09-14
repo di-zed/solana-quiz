@@ -1,4 +1,13 @@
-mounted/*
+front/node_modules
+front/.pnp
+front/.pnp.js
+
+front/coverage
+front/build
+
+front/npm-debug.log*
+front/yarn-debug.log*
+front/yarn-error.log*
 
 node/dist/*
 node/node_modules
@@ -8,6 +17,8 @@ rust/target/*
 rust/*.pdb
 **/*.rs.bk
 **/mutants.out*/
+
+mounted/*
 
 .env
 .idea

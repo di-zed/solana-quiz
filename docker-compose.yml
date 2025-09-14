@@ -80,6 +80,27 @@ services:
     networks:
       - internal
 
+  front:
+    container_name: front-sq
+    build:
+      context: ./images/front
+    command: npm run start
+    hostname: docker-front
+    ports:
+      - '${FRONT_HOST_PORT}:${FRONT_CONTAINER_PORT}'
+    volumes:
+      - ./front:/home/app
+      - ./.env:/home/app/.env
+      - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
+      - ./volumes/root/bash_history/front:/root/.bash_history:delegated
+    environment:
+      PORT: ${FRONT_CONTAINER_PORT}
+    working_dir: /home/app
+    depends_on:
+      - node
+    networks:
+      - internal
+
 volumes:
   postgres_data:
 

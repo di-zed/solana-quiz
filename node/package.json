@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "copy": "cp -pr ./src/locales/ ./dist/",
+    "copy": "cp -pr ./src/locales/ ./dist/ && cp -pr ./src/public/ ./dist/ && cp -pr ./src/views/ ./dist/",
     "build": "NODE_ENV=development npm i && ./node_modules/typescript/bin/tsc && npm run copy",
     "server": "node ./dist/server.js",
     "start:dev": "npm run build && npm run server",
@@ -40,6 +40,7 @@
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-ruid": "^1.1.5",
     "helmet": "^8.0.0",
@@ -54,6 +55,7 @@
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
+    "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.0",
     "@types/hpp": "^0.2.6",
     "@types/i18n": "^0.13.12",
