@@ -1,28 +1,8 @@
-front/node_modules
-front/.pnp
-front/.pnp.js
-
-front/coverage
-front/build
-
-front/npm-debug.log*
-front/yarn-debug.log*
-front/yarn-error.log*
-
-node/dist/*
-node/node_modules
-
-rust/debug
-rust/target/*
-rust/*.pdb
-**/*.rs.bk
-**/mutants.out*/
+**/.env
+**/.idea
+**/.vscode
 
 mounted/*
-
-.env
-.idea
-.vscode
 
 docker-compose.local.yml
 

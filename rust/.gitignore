@@ -1,0 +1,6 @@
+/debug
+/target/*
+
+/*.pdb
+**/*.rs.bk
+**/mutants.out*/
