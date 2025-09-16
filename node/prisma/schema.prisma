@@ -1,0 +1,21 @@
+// @author DiZed Team
+// @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  walletAddress String   @unique @map("wallet_address")
+  lastLoginAt   DateTime @updatedAt @map("last_login_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}

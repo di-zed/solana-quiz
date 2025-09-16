@@ -73,6 +73,7 @@ services:
       - ./volumes/root/bash_history/node:/root/.bash_history:delegated
     environment:
       NODE_ENV: ${NODE_ENV}
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_CONTAINER_PORT}/${POSTGRES_DB}?schema=public"
     working_dir: /home/app
     depends_on:
       - rust
