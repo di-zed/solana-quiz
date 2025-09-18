@@ -5,6 +5,7 @@
 import { Router } from 'express';
 import RestAuthController from '../../controllers/rest/authController';
 import catchAsync from '../../errors/catchAsync';
+import { authMiddleware } from '../../middlewares/authMiddleware';
 
 /**
  * REST Auth Routes.
@@ -38,8 +39,11 @@ class AuthRoutes {
    * @protected
    */
   protected initRoutes(): void {
+    // GET
     this.router.route('/nonce').get(catchAsync(this.controller.nonce.bind(this.controller)));
+    this.router.route('/me').get(authMiddleware, catchAsync(this.controller.me.bind(this.controller)));
 
+    // POST
     this.router.route('/login').post(catchAsync(this.controller.login.bind(this.controller)));
   }
 

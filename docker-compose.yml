@@ -96,6 +96,7 @@ services:
       - ./volumes/root/bash_history/front:/root/.bash_history:delegated
     environment:
       PORT: ${FRONT_CONTAINER_PORT}
+      NEXT_PUBLIC_NODE_URL: ${NODE_PUBLIC_URL}
     working_dir: /home/app
     depends_on:
       - node

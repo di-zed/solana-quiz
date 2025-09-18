@@ -1,5 +1,10 @@
+/**
+ * @author DiZed Team
+ * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
+ */
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { SolanaProvider } from '../providers/SolanaProvider';
 import './globals.css';
 
 const geistSans = Geist({
@@ -24,7 +29,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <SolanaProvider>{children}</SolanaProvider>
+      </body>
     </html>
   );
 }

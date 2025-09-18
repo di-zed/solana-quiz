@@ -39,7 +39,9 @@
   "homepage": "https://github.com/di-zed/solana-quiz#readme",
   "dependencies": {
     "@prisma/client": "^6.16.1",
+    "bs58": "^6.0.0",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
@@ -52,10 +54,12 @@
     "morgan": "^1.10.0",
     "npm": "^11.2.0",
     "redis": "^4.7.0",
+    "tweetnacl": "^1.0.3",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.19",
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.0",
     "@types/hpp": "^0.2.6",

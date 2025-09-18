@@ -3,6 +3,7 @@
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
 import { NextFunction, Request, Response } from 'express';
+import i18n from 'i18n';
 import AppError from '../errors/appError';
 
 /**
@@ -45,9 +46,11 @@ class ErrorHandler {
       this.updateProperties(err);
       this.generateErrorDev(err, req, res);
     } else if (process.env.NODE_ENV === 'production') {
-      const handledError = null;
+      let handledError = null;
 
-      // ... the logic for handle error and specify handledError variable ...
+      if (err.message.indexOf('@prisma/client did not initialize yet') !== -1) {
+        handledError = this.handlePrismaClientInitError();
+      }
 
       this.updateProperties(handledError || err);
       this.generateErrorProd(handledError || err, req, res);
@@ -121,6 +124,16 @@ class ErrorHandler {
       title: res.__('Something went wrong!'),
       errorMessage: res.__('Please try again later.'),
     });
+  }
+
+  /**
+   * Handle Prisma Client Initialization Error.
+   *
+   * @returns AppError
+   * @protected
+   */
+  protected handlePrismaClientInitError(): AppError {
+    return new AppError(i18n.__('Database error.'), 400);
   }
 
   /**

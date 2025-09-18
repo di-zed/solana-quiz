@@ -3,6 +3,7 @@
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import express, { Application } from 'express';
 import expressRuid from 'express-ruid';
 import helmet from 'helmet';
@@ -46,6 +47,16 @@ class Bootstrap {
     // Parse Cookie header and populate req.cookies with an object keyed by the cookie names.
     app.use(cookieParser());
 
+    if (process.env.FRONT_PUBLIC_URL) {
+      app.use(
+        cors({
+          origin: process.env.FRONT_PUBLIC_URL,
+          methods: ['GET', 'POST', 'PUT', 'DELETE'],
+          credentials: true,
+        }),
+      );
+    }
+
     // Lightweight simple translation module with dynamic JSON storage.
     i18n.configure({
       locales: ['ru'],
@@ -72,7 +83,8 @@ class Bootstrap {
       helmet({
         contentSecurityPolicy: {
           directives: {
-            scriptSrc: ["'self'", 'cdn.jsdelivr.net'],
+            scriptSrc: ["'self'", process.env.FRONT_PUBLIC_URL ?? '', 'cdn.jsdelivr.net'],
+            connectSrc: ["'self'", process.env.FRONT_PUBLIC_URL ?? ''],
             'form-action': null,
           },
         },
