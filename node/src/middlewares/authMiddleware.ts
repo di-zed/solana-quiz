@@ -5,6 +5,7 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import AppError from '../errors/appError';
+import userService from '../services/userService';
 
 /**
  * Auth Middleware.
@@ -12,16 +13,23 @@ import AppError from '../errors/appError';
  * @param req
  * @param res
  * @param next
- * @returns void
+ * @returns Promise<void>
  */
-export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-  const token = req.cookies['auth_token'];
-  if (!token) {
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const authToken = req.cookies['auth_token'];
+  if (!authToken) {
     return next(new AppError(res.__('You are not logged in! Please log in to get access.'), 401));
   }
 
   try {
-    req.currentUser = jwt.verify(token, process.env.NODE_JWT_ACCESS_SECRET as string) as CurrentUser;
+    const authPayload = jwt.verify(authToken, process.env.NODE_JWT_ACCESS_SECRET as string) as TokenPayload;
+    const currentUser = await userService.prepareCurrentUserById(authPayload.userId);
+
+    if (!currentUser) {
+      return next(new AppError(res.__('You are not logged in! Please log in to get access.'), 401));
+    }
+
+    req.currentUser = currentUser;
     return next();
   } catch {
     return next(new AppError(res.__('You are not logged in! Please log in to get access.'), 401));
@@ -29,9 +37,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
 };
 
 /**
- * Authenticated User Type.
+ * Token Payload Type.
  */
-export type CurrentUser = {
-  id: Number;
-  wallet: String;
+export type TokenPayload = {
+  userId: number;
 };

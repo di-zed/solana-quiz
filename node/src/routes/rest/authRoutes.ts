@@ -41,10 +41,12 @@ class AuthRoutes {
   protected initRoutes(): void {
     // GET
     this.router.route('/nonce').get(catchAsync(this.controller.nonce.bind(this.controller)));
-    this.router.route('/me').get(authMiddleware, catchAsync(this.controller.me.bind(this.controller)));
+    this.router.route('/me').get(catchAsync(authMiddleware), catchAsync(this.controller.me.bind(this.controller)));
 
     // POST
     this.router.route('/login').post(catchAsync(this.controller.login.bind(this.controller)));
+    this.router.route('/logout').post(catchAsync(authMiddleware), catchAsync(this.controller.logout.bind(this.controller)));
+    this.router.route('/refresh').post(catchAsync(this.controller.refresh.bind(this.controller)));
   }
 
   /**

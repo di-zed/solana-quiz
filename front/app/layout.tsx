@@ -4,6 +4,7 @@
  */
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { AuthProvider } from '../providers/AuthProvider';
 import { SolanaProvider } from '../providers/SolanaProvider';
 import './globals.css';
 
@@ -30,7 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SolanaProvider>{children}</SolanaProvider>
+        <SolanaProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </SolanaProvider>
       </body>
     </html>
   );

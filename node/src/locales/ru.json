@@ -1,5 +1,6 @@
 {
 	"Can not find \"%s\" on this server!": "Can not find \"%s\" on this server!",
 	"Something went wrong!": "Something went wrong!",
-	"You are not logged in! Please log in to get access.": "You are not logged in! Please log in to get access."
+	"You are not logged in! Please log in to get access.": "You are not logged in! Please log in to get access.",
+	"The refresh token is not valid.": "The refresh token is not valid."
 }
