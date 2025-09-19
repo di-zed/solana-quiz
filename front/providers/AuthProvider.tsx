@@ -36,10 +36,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * @constructor
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { publicKey, connected, signMessage } = useWallet();
+  const { publicKey, connected, disconnecting, signMessage } = useWallet();
 
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // let's make sure the component is mounted on the client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   /**
    * Set Current User.
@@ -75,8 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // 1. We receive a nonce
       const resNonce = await fetch(`${process.env.NEXT_PUBLIC_NODE_URL}/v1/auth/nonce`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       });
 
@@ -132,7 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async (): Promise<void> => {
     await fetch(`${process.env.NEXT_PUBLIC_NODE_URL}/v1/auth/logout`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
 
@@ -144,8 +147,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    */
   const getCurrentUser = async (): Promise<CurrentUser | null> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_NODE_URL}/v1/auth/me`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
 
@@ -168,7 +169,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refresh = async (): Promise<CurrentUser | null> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_NODE_URL}/v1/auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
 
@@ -186,7 +186,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    setCurrentUser();
+    if (!mounted) {
+      return;
+    }
+
+    setCurrentUser().then();
 
     // background check every 5 minutes
     const interval = setInterval(setCurrentUser, 5 * 60 * 1000);
@@ -199,7 +203,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearInterval(interval);
       window.removeEventListener('focus', onFocus);
     };
-  }, []);
+  }, [mounted]);
+
+  // while there is no mount, we do not render children → we fix the hydration mismatch problem
+  if (!mounted) {
+    return null;
+  }
+
+  // automatic logout when a user disconnects their wallet
+  if (disconnecting) {
+    logout().then();
+  }
 
   return <AuthContext.Provider value={{ user, loading, login, logout, refresh }}>{children}</AuthContext.Provider>;
 }

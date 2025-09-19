@@ -18,6 +18,8 @@ interface SolanaProviderProps {
 }
 
 export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
+  console.log('test');
+
   const network = process.env.FRONT_SOLANA_NETWORK || WalletAdapterNetwork.Devnet;
 
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
