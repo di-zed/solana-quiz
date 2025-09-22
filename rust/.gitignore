@@ -1,4 +1,5 @@
 /debug
+/secret/*
 /target/*
 
 /*.pdb

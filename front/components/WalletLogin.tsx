@@ -6,7 +6,7 @@ import { useAuth } from '../providers/AuthProvider';
 
 export default function WalletLogin() {
   const { connected } = useWallet();
-  const { user, loading, login, refresh, logout } = useAuth();
+  const { user, loading, login, logout } = useAuth();
 
   return (
     <>
