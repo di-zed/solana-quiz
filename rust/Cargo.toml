@@ -8,3 +8,7 @@ clap = { version = "4.5.48", features = ["derive"] }
 anyhow = "1.0.100"
 tokio = { version = "1.47.1", features = ["full"] }
 dotenv = "0.15.0"
+solana-sdk = "1.18"
+solana-client = "1.18"
+solana-program = "1.18"
+spl-token = "4.0"
