@@ -5,6 +5,7 @@ mod create_mint;
 mod create_token_account;
 mod mint_tokens;
 mod request_airdrop;
+mod send_tokens;
 
 #[derive(Parser)]
 #[command(name = "solana-quiz")]
@@ -28,6 +29,12 @@ pub enum Commands {
         #[arg(short, long)]
         amount: u64,
     },
+    SendTokens {
+        #[arg(short, long)]
+        recipient: String,
+        #[arg(short, long)]
+        amount: u64,
+    },
 }
 
 pub async fn run(cli: Cli) -> Result<()> {
@@ -43,6 +50,9 @@ pub async fn run(cli: Cli) -> Result<()> {
         }
         Commands::MintTokens { amount } => {
             mint_tokens::run(amount).await?;
+        }
+        Commands::SendTokens { recipient, amount } => {
+            send_tokens::run(recipient, amount).await?;
         }
     }
 

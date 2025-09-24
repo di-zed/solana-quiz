@@ -5,14 +5,17 @@ use solana_program::{
     native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey,
     system_instruction::create_account,
 };
-use solana_sdk::signature::{Keypair, Signature};
-use solana_sdk::{signer::Signer, transaction::Transaction};
+use solana_sdk::{
+    signature::{Keypair, Signature},
+    signer::Signer,
+    transaction::Transaction,
+};
 use spl_associated_token_account::{
     get_associated_token_address, instruction::create_associated_token_account_idempotent,
 };
 use spl_token::{
     ID as TOKEN_PROGRAM_ID,
-    instruction::{initialize_mint2, mint_to_checked},
+    instruction::{initialize_mint2, mint_to_checked, transfer_checked},
     state::Mint,
 };
 
@@ -231,6 +234,62 @@ impl SolanaApi {
         );
 
         // Send transaction and wait for confirmation
+        let transaction_signature = self
+            .rpc_client
+            .send_and_confirm_transaction(&transaction)
+            .await?;
+
+        Ok(transaction_signature)
+    }
+
+    /// Transfers SPL tokens from the authority (sender) to a recipient.
+    ///
+    /// [How to Send Tokens](https://solana.com/developers/cookbook/tokens/transfer-tokens)
+    ///
+    /// # Arguments
+    /// * `recipient_pubkey` - the public key of the recipient wallet
+    /// * `amount` - the number of tokens to transfer (in human-readable units, e.g., 1 = 1 token)
+    ///
+    /// # Returns
+    /// * `Signature` of the transfer transaction
+    pub async fn send_tokens(&self, recipient_pubkey: &Pubkey, amount: u64) -> Result<Signature> {
+        let sender = &self.authority_keypair; // authority and fee payer
+        let mint_account = &self.mint_account; // token mint
+
+        // Derive the associated token accounts (ATA) for sender and recipient
+        let sender_token_account =
+            get_associated_token_address(&sender.pubkey(), &mint_account.pubkey());
+        let recipient_token_account =
+            get_associated_token_address(&recipient_pubkey, &mint_account.pubkey());
+
+        // Fetch the decimals of the mint (e.g., 9 for most SPL tokens)
+        // Needed to convert human-readable `amount` into base units (lamports of the token)
+        let decimals = self
+            .rpc_client
+            .get_token_account_balance(&sender_token_account)
+            .await?
+            .decimals;
+        let transfer_amount = amount * 10_u64.pow(decimals as u32);
+
+        // Build transfer instruction with decimal check for safety
+        let transfer_ix = transfer_checked(
+            &TOKEN_PROGRAM_ID,        // SPL token program
+            &sender_token_account,    // source ATA
+            &mint_account.pubkey(),   // token mint
+            &recipient_token_account, // destination ATA
+            &sender.pubkey(),         // authority of sender
+            &[&sender.pubkey()],      // signer seeds
+            transfer_amount,          // amount in base units
+            decimals,                 // decimals to check
+        )?;
+
+        // Build the transaction with the transfer instruction
+        let mut transaction = Transaction::new_with_payer(&[transfer_ix], Some(&sender.pubkey()));
+
+        // Sign with the sender's authority (who also pays for fees)
+        transaction.sign(&[&sender], self.rpc_client.get_latest_blockhash().await?);
+
+        // Send and confirm transaction
         let transaction_signature = self
             .rpc_client
             .send_and_confirm_transaction(&transaction)
