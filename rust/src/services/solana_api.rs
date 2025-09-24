@@ -7,7 +7,14 @@ use solana_program::{
 };
 use solana_sdk::signature::{Keypair, Signature};
 use solana_sdk::{signer::Signer, transaction::Transaction};
-use spl_token::{ID as TOKEN_PROGRAM_ID, instruction::initialize_mint2, state::Mint};
+use spl_associated_token_account::{
+    get_associated_token_address, instruction::create_associated_token_account_idempotent,
+};
+use spl_token::{
+    ID as TOKEN_PROGRAM_ID,
+    instruction::{initialize_mint2, mint_to_checked},
+    state::Mint,
+};
 
 pub struct SolanaApi {
     rpc_client: RpcClient,
@@ -38,7 +45,7 @@ impl SolanaApi {
     }
 
     /// Creates a new instance with custom parameters (useful for testing).
-    pub fn with_params(
+    pub fn _with_params(
         rpc_client: RpcClient,
         authority_keypair: Keypair,
         mint_account: Keypair,
@@ -52,6 +59,8 @@ impl SolanaApi {
 
     /// Requests an airdrop of SOL and waits for confirmation.
     ///
+    /// [Getting Test SOL](https://solana.com/developers/cookbook/development/test-sol)
+    ///
     /// # Arguments
     /// * `sol_amount` - amount of SOL to request
     /// * `pubkey` - pubkey to receive SOL
@@ -63,12 +72,16 @@ impl SolanaApi {
         sol_amount: u64,
         pubkey: &Option<Pubkey>,
     ) -> Result<Signature> {
+        // Determine which pubkey will receive the SOL
         let final_pubkey = pubkey.unwrap_or_else(|| self.authority_keypair.pubkey());
 
+        // Request the airdrop
         let transaction_signature = self
             .rpc_client
             .request_airdrop(&final_pubkey, &sol_amount * LAMPORTS_PER_SOL)
             .await?;
+
+        // Wait until transaction is confirmed
         loop {
             if self
                 .rpc_client
@@ -84,6 +97,8 @@ impl SolanaApi {
 
     /// Creates a new mint account and initializes it.
     ///
+    /// [How to Create a Token](https://solana.com/developers/cookbook/tokens/create-mint-account)
+    ///
     /// # Returns
     /// * `Signature` of the mint creation transaction
     pub async fn create_mint(&self) -> Result<Signature> {
@@ -93,32 +108,129 @@ impl SolanaApi {
             .get_minimum_balance_for_rent_exemption(mint_account_len)
             .await?;
 
+        // Instruction to create a new account for the mint
         let create_mint_account_ix = create_account(
-            &self.authority_keypair.pubkey(),
-            &self.mint_account.pubkey(),
-            mint_account_rent,
-            mint_account_len as u64,
-            &TOKEN_PROGRAM_ID,
+            &self.authority_keypair.pubkey(), // payer: pays rent for the new account
+            &self.mint_account.pubkey(),      // new mint account pubkey
+            mint_account_rent,                // minimum rent-exempt balance
+            mint_account_len as u64,          // size of the mint account
+            &TOKEN_PROGRAM_ID,                // SPL token program
         );
 
+        // Instruction to initialize the mint
         let initialize_mint_ix = initialize_mint2(
-            &TOKEN_PROGRAM_ID,
-            &self.mint_account.pubkey(),
-            &self.authority_keypair.pubkey(),
-            Some(&self.authority_keypair.pubkey()),
-            9,
+            &TOKEN_PROGRAM_ID,                      // SPL token program
+            &self.mint_account.pubkey(),            // mint account to initialize
+            &self.authority_keypair.pubkey(),       // mint authority
+            Some(&self.authority_keypair.pubkey()), // freeze authority (optional)
+            9,                                      // decimals
         )?;
 
+        // Create a transaction with the above instructions
         let mut transaction = Transaction::new_with_payer(
             &[create_mint_account_ix, initialize_mint_ix],
             Some(&self.authority_keypair.pubkey()),
         );
 
+        // Sign transaction with authority and mint keypairs
         transaction.sign(
             &[&self.authority_keypair, &self.mint_account],
             self.rpc_client.get_latest_blockhash().await?,
         );
 
+        // Send and confirm transaction
+        let transaction_signature = self
+            .rpc_client
+            .send_and_confirm_transaction(&transaction)
+            .await?;
+
+        Ok(transaction_signature)
+    }
+
+    /// Creates an associated token account for the authority keypair
+    /// and initializes it to hold tokens of the mint.
+    ///
+    /// [How to Create a Token Account](https://solana.com/developers/cookbook/tokens/create-token-account)
+    ///
+    /// # Returns
+    /// * `Signature` of the transaction that created the token account.
+    pub async fn create_token_account(&self) -> Result<Signature> {
+        // Instruction to create an associated token account if it doesn't exist
+        let create_ata_ix = create_associated_token_account_idempotent(
+            &self.authority_keypair.pubkey(), // payer
+            &self.authority_keypair.pubkey(), // wallet to hold tokens
+            &self.mint_account.pubkey(),      // mint of the token
+            &TOKEN_PROGRAM_ID,                // SPL token program
+        );
+
+        // Build transaction with the instruction
+        let mut transaction =
+            Transaction::new_with_payer(&[create_ata_ix], Some(&self.authority_keypair.pubkey()));
+
+        // Sign transaction with authority keypair
+        transaction.sign(
+            &[&self.authority_keypair],
+            self.rpc_client.get_latest_blockhash().await?,
+        );
+
+        // Send transaction and wait for confirmation
+        let transaction_signature = self
+            .rpc_client
+            .send_and_confirm_transaction(&transaction)
+            .await?;
+
+        Ok(transaction_signature)
+    }
+
+    /// Mints `amount` tokens to the authority's associated token account.
+    /// The amount is adjusted according to the mint's decimals.
+    ///
+    /// [How to Mint Tokens](https://solana.com/developers/cookbook/tokens/mint-tokens)
+    ///
+    /// # Arguments
+    /// * `amount` - number of tokens to mint (whole units)
+    ///
+    /// # Returns
+    /// * `Signature` of the mint transaction
+    pub async fn mint_tokens(&self, amount: u64) -> Result<Signature> {
+        // Compute the associated token account for the authority
+        let associated_token_account = get_associated_token_address(
+            &self.authority_keypair.pubkey(),
+            &self.mint_account.pubkey(),
+        );
+
+        // Fetch the number of decimals for this token from the account
+        let mint_decimals = self
+            .rpc_client
+            .get_token_account_balance(&associated_token_account)
+            .await?
+            .decimals;
+
+        // Convert the requested amount to the smallest unit based on decimals
+        let amount_to_mint = amount * 10_u64.pow(mint_decimals as u32);
+
+        // Instruction to mint tokens to the associated token account
+        let mint_to_ix = mint_to_checked(
+            &TOKEN_PROGRAM_ID,                   // SPL Token program
+            &self.mint_account.pubkey(),         // mint account
+            &associated_token_account,           // recipient token account
+            &self.authority_keypair.pubkey(),    // mint authority
+            &[&self.authority_keypair.pubkey()], // signers
+            amount_to_mint,                      // amount in smallest units
+            mint_decimals,                       // decimals
+        )?;
+
+        // Build transaction with the mint instruction
+        let mut transaction =
+            Transaction::new_with_payer(&[mint_to_ix], Some(&self.authority_keypair.pubkey()));
+
+        // Sign transaction with authority keypair
+        transaction.sign(
+            &[&self.authority_keypair],
+            self.rpc_client.get_latest_blockhash().await?,
+        );
+
+        // Send transaction and wait for confirmation
         let transaction_signature = self
             .rpc_client
             .send_and_confirm_transaction(&transaction)

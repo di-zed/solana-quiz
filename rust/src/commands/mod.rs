@@ -2,6 +2,8 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 mod create_mint;
+mod create_token_account;
+mod mint_tokens;
 mod request_airdrop;
 
 #[derive(Parser)]
@@ -21,6 +23,11 @@ pub enum Commands {
         pubkey: Option<String>,
     },
     CreateMint {},
+    CreateTokenAccount {},
+    MintTokens {
+        #[arg(short, long)]
+        amount: u64,
+    },
 }
 
 pub async fn run(cli: Cli) -> Result<()> {
@@ -30,6 +37,12 @@ pub async fn run(cli: Cli) -> Result<()> {
         }
         Commands::CreateMint {} => {
             create_mint::run().await?;
+        }
+        Commands::CreateTokenAccount {} => {
+            create_token_account::run().await?;
+        }
+        Commands::MintTokens { amount } => {
+            mint_tokens::run(amount).await?;
         }
     }
 

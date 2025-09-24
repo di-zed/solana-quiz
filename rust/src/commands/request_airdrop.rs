@@ -27,7 +27,7 @@ pub async fn run(sol_amount: u64, pubkey: Option<String>) -> Result<()> {
         .request_airdrop(sol_amount, &parsed_pubkey)
         .await
     {
-        Ok(signature) => println!("Airdrop requested, signature: {}", signature),
+        Ok(signature) => println!("Transaction Signature: {}", signature),
         Err(err) => eprintln!("Error sending transaction: {}", err),
     }
 
