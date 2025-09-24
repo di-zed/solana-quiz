@@ -81,7 +81,7 @@ impl SolanaApi {
         // Request the airdrop
         let transaction_signature = self
             .rpc_client
-            .request_airdrop(&final_pubkey, &sol_amount * LAMPORTS_PER_SOL)
+            .request_airdrop(&final_pubkey, sol_amount * LAMPORTS_PER_SOL)
             .await?;
 
         // Wait until transaction is confirmed
@@ -271,6 +271,24 @@ impl SolanaApi {
             .decimals;
         let transfer_amount = amount * 10_u64.pow(decimals as u32);
 
+        let mut instructions = vec![];
+
+        // Build optional instruction to create recipient ATA if it doesn't exist
+        if self
+            .rpc_client
+            .get_account(&recipient_token_account)
+            .await
+            .is_err()
+        {
+            let create_recipient_ata_ix = create_associated_token_account_idempotent(
+                &sender.pubkey(),       // payer
+                &recipient_pubkey,      // wallet to hold tokens
+                &mint_account.pubkey(), // mint
+                &TOKEN_PROGRAM_ID,      // SPL token program
+            );
+            instructions.push(create_recipient_ata_ix);
+        }
+
         // Build transfer instruction with decimal check for safety
         let transfer_ix = transfer_checked(
             &TOKEN_PROGRAM_ID,        // SPL token program
@@ -282,9 +300,10 @@ impl SolanaApi {
             transfer_amount,          // amount in base units
             decimals,                 // decimals to check
         )?;
+        instructions.push(transfer_ix);
 
         // Build the transaction with the transfer instruction
-        let mut transaction = Transaction::new_with_payer(&[transfer_ix], Some(&sender.pubkey()));
+        let mut transaction = Transaction::new_with_payer(&instructions, Some(&sender.pubkey()));
 
         // Sign with the sender's authority (who also pays for fees)
         transaction.sign(&[&sender], self.rpc_client.get_latest_blockhash().await?);

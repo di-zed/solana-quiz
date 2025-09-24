@@ -17,6 +17,7 @@ cargo build --release
 ./target/release/solana-quiz create-mint
 ./target/release/solana-quiz create-token-account
 ./target/release/solana-quiz mint-tokens --amount 1000000
+./target/release/solana-quiz send-tokens --recipient FzCptggk4znyovWcedjDD75E8ZXSJNWxiBfn1WDJ6FQ5 --amount 5
 
 solana account 48TLwzYY1k2xNWBzAXWLmbTHVoMe5SGoux3zwNHH3MkY --url http://host.docker.internal:8899
 solana balance 48TLwzYY1k2xNWBzAXWLmbTHVoMe5SGoux3zwNHH3MkY --url http://host.docker.internal:8899
