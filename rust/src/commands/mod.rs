@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
+mod create_metadata_accounts;
 mod create_mint;
 mod create_token_account;
 mod mint_tokens;
@@ -35,6 +36,7 @@ pub enum Commands {
         #[arg(short, long)]
         amount: u64,
     },
+    CreateMetadataAccounts {},
 }
 
 pub async fn run(cli: Cli) -> Result<()> {
@@ -53,6 +55,9 @@ pub async fn run(cli: Cli) -> Result<()> {
         }
         Commands::SendTokens { recipient, amount } => {
             send_tokens::run(recipient, amount).await?;
+        }
+        Commands::CreateMetadataAccounts {} => {
+            create_metadata_accounts::run().await?;
         }
     }
 

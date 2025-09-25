@@ -31,3 +31,20 @@ pub fn create_rpc_client() -> RpcClient {
 
     RpcClient::new_with_commitment(rpc, CommitmentConfig::confirmed())
 }
+
+/// Reads the token name from `SOLANA_TOKEN_NAME` env variable.
+pub fn get_token_name() -> String {
+    config_util::get_required_env("SOLANA_TOKEN_NAME").expect("SOLANA_TOKEN_NAME is not set")
+}
+
+/// Reads the token symbol from `SOLANA_TOKEN_SYMBOL` env variable.
+pub fn get_token_symbol() -> String {
+    config_util::get_required_env("SOLANA_TOKEN_SYMBOL").expect("SOLANA_TOKEN_SYMBOL is not set")
+}
+
+/// Reads the metadata URI (JSON with image and description)
+/// from `SOLANA_TOKEN_METADATA_URI` env variable.
+pub fn get_token_meta_uri() -> String {
+    config_util::get_required_env("SOLANA_TOKEN_METADATA_URI")
+        .expect("SOLANA_TOKEN_METADATA_URI is not set")
+}

@@ -1,5 +1,8 @@
 use crate::utils::solana_util;
 use anyhow::Result;
+use mpl_token_metadata::accounts::Metadata;
+use mpl_token_metadata::instructions::CreateV1Builder;
+use mpl_token_metadata::types::{PrintSupply, TokenStandard};
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_program::{
     native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey,
@@ -309,6 +312,52 @@ impl SolanaApi {
         transaction.sign(&[&sender], self.rpc_client.get_latest_blockhash().await?);
 
         // Send and confirm transaction
+        let transaction_signature = self
+            .rpc_client
+            .send_and_confirm_transaction(&transaction)
+            .await?;
+
+        Ok(transaction_signature)
+    }
+
+    /// Creates Metaplex metadata for the NFT / token.
+    ///
+    /// This includes name, symbol, URI (image/metadata), seller fee, and token standard.
+    ///
+    /// # Returns
+    /// * `Signature` of the transaction creating the metadata
+    pub async fn create_metadata_accounts(&self) -> Result<Signature> {
+        let payer_pubkey = self.authority_keypair.pubkey();
+        let mint_pubkey = self.mint_account.pubkey();
+
+        // Derive the PDA for the metadata account
+        let (metadata_pubkey, _) = Metadata::find_pda(&mint_pubkey);
+
+        // Build the instruction for creating metadata
+        let create_ix = CreateV1Builder::new()
+            .metadata(metadata_pubkey) // Metadata account PDA
+            .mint(mint_pubkey, true) // Mint account + signer
+            .authority(payer_pubkey) // Mint authority
+            .payer(payer_pubkey) // Payer of transaction fees
+            .update_authority(payer_pubkey, true) // Update authority with signer
+            .is_mutable(true) // Can metadata be updated later
+            .primary_sale_happened(false) // Has primary sale occurred
+            .name(solana_util::get_token_name()) // Token/NFT name
+            .symbol(solana_util::get_token_symbol()) // Token symbol
+            .uri(solana_util::get_token_meta_uri()) // Metadata URI (JSON hosted off-chain)
+            .seller_fee_basis_points(0) // No royalty for fungible tokens
+            .token_standard(TokenStandard::Fungible) // Fungible token
+            .instruction();
+
+        // Build transaction with both authority and mint as signers
+        let mut transaction = Transaction::new_with_payer(&[create_ix], Some(&payer_pubkey));
+
+        transaction.sign(
+            &[&self.authority_keypair, &self.mint_account], // Mint + authority sign
+            self.rpc_client.get_latest_blockhash().await?,
+        );
+
+        // Send transaction and wait for confirmation
         let transaction_signature = self
             .rpc_client
             .send_and_confirm_transaction(&transaction)
