@@ -6,6 +6,7 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import AppError from '../errors/appError';
 import userService from '../services/userService';
+import configUtil from '../utils/configUtil';
 
 /**
  * Auth Middleware.
@@ -22,7 +23,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   }
 
   try {
-    const authPayload = jwt.verify(authToken, process.env.NODE_JWT_ACCESS_SECRET as string) as TokenPayload;
+    const authPayload = jwt.verify(authToken, configUtil.getRequiredEnv('NODE_JWT_ACCESS_SECRET')) as TokenPayload;
     const currentUser = await userService.prepareCurrentUserById(authPayload.userId);
 
     if (!currentUser) {

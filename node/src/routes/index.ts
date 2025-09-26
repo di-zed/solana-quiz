@@ -6,6 +6,7 @@ import { Application, NextFunction, Request, Response } from 'express';
 import AppError from '../errors/appError';
 import errorHandler from '../errors/handler';
 import restAuthRouter from './rest/authRoutes';
+import restQuizRouter from './rest/quizRoutes';
 
 /**
  * Loading Routes.
@@ -19,6 +20,7 @@ export default class Routes {
   public constructor(app: Application) {
     // REST API.
     app.use('/v1/auth', restAuthRouter);
+    app.use('/v1/quiz', restQuizRouter);
 
     // Other URLs.
     app.all('*', (req: Request, res: Response, next: NextFunction) => {

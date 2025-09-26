@@ -19,3 +19,26 @@ model User {
 
   @@map("users")
 }
+
+model QuizQuestion {
+  id        Int                  @id @default(autoincrement())
+  quizId    Int                  @map("quiz_id")
+  question  String
+  answer    String
+  createdAt DateTime             @default(now()) @map("created_at")
+  options   QuizQuestionOption[]
+
+  @@index([quizId])
+  @@map("quiz_questions")
+}
+
+model QuizQuestionOption {
+  id         Int          @id @default(autoincrement())
+  questionId Int          @map("question_id")
+  option     String
+  createdAt  DateTime     @default(now()) @map("created_at")
+  question   QuizQuestion @relation(fields: [questionId], references: [id])
+
+  @@index([questionId])
+  @@map("quiz_question_options")
+}

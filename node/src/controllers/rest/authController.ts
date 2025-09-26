@@ -10,6 +10,7 @@ import AppError from '../../errors/appError';
 import { TokenPayload } from '../../middlewares/authMiddleware';
 import prismaProvider from '../../providers/prismaProvider';
 import userService from '../../services/userService';
+import configUtil from '../../utils/configUtil';
 
 /**
  * REST Auth Controller.
@@ -111,7 +112,7 @@ export default class AuthController {
     }
 
     try {
-      const refreshPayload = jwt.verify(refreshToken, process.env.NODE_JWT_REFRESH_SECRET as string) as TokenPayload;
+      const refreshPayload = jwt.verify(refreshToken, configUtil.getRequiredEnv('NODE_JWT_REFRESH_SECRET')) as TokenPayload;
       this.updateTokens(res, refreshPayload.userId);
 
       const currentUser = userService.prepareCurrentUserById(refreshPayload.userId);
@@ -158,10 +159,10 @@ export default class AuthController {
    */
   protected updateTokens(res: Response, userId: number): boolean {
     try {
-      const authToken = jwt.sign(<TokenPayload>{ userId: userId }, process.env.NODE_JWT_ACCESS_SECRET as string, {
+      const authToken = jwt.sign(<TokenPayload>{ userId: userId }, configUtil.getRequiredEnv('NODE_JWT_ACCESS_SECRET'), {
         expiresIn: '1h',
       });
-      const refreshToken = jwt.sign(<TokenPayload>{ userId: userId }, process.env.NODE_JWT_REFRESH_SECRET as string, {
+      const refreshToken = jwt.sign(<TokenPayload>{ userId: userId }, configUtil.getRequiredEnv('NODE_JWT_REFRESH_SECRET'), {
         expiresIn: '30d',
       });
 

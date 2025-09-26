@@ -2,7 +2,7 @@ use crate::utils::solana_util;
 use anyhow::Result;
 use mpl_token_metadata::accounts::Metadata;
 use mpl_token_metadata::instructions::CreateV1Builder;
-use mpl_token_metadata::types::{PrintSupply, TokenStandard};
+use mpl_token_metadata::types::TokenStandard;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_program::{
     native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey,

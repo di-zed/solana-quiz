@@ -23,3 +23,13 @@ cargo build --release
 solana account 48TLwzYY1k2xNWBzAXWLmbTHVoMe5SGoux3zwNHH3MkY --url http://host.docker.internal:8899
 solana balance 48TLwzYY1k2xNWBzAXWLmbTHVoMe5SGoux3zwNHH3MkY --url http://host.docker.internal:8899
 solana logs --url http://host.docker.internal:8899
+
+Синхронизация схемы с базой (создание миграции)
+npx prisma migrate dev --name init
+--name init — название миграции (можешь любое).
+Этот шаг создаст миграцию и применит её к базе.
+
+Для production используют:
+npx prisma migrate deploy
+Он не создаёт новые миграции, а применяет только те, что уже были созданные в dev.
+Предназначен для безопасного обновления базы на продакшене.
