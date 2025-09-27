@@ -51,11 +51,11 @@ export default class AuthController {
     const { walletAddress, signature, nonce } = req.body;
 
     if (!walletAddress || !signature || !nonce) {
-      return next(new AppError('Invalid request', 400));
+      return next(new AppError('Invalid request.', 400));
     }
 
     if (!this.nonces.has(nonce)) {
-      return next(new AppError('Invalid nonce', 400));
+      return next(new AppError('Invalid nonce.', 400));
     }
     this.nonces.delete(nonce);
 
@@ -65,7 +65,7 @@ export default class AuthController {
 
     const isValid = nacl.sign.detached.verify(message, sigBytes, pubKeyBytes);
     if (!isValid) {
-      return next(new AppError('Invalid signature', 401));
+      return next(new AppError('Invalid signature.', 401));
     }
 
     const user = await prismaProvider.getClient().user.upsert({

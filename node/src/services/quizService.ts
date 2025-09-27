@@ -2,7 +2,7 @@
  * @author DiZed Team
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
-import { QuizQuestion, QuizQuestionOption } from '@prisma/client';
+import { QuizAnswer, QuizQuestion, QuizQuestionOption } from '@prisma/client';
 import openAiProvider from '../providers/openAiProvider';
 import prismaProvider from '../providers/prismaProvider';
 
@@ -51,11 +51,12 @@ class QuizService {
   /**
    * Get Questions from DB.
    *
+   * @param quizId
    * @returns Promise<QuizQuestion[]>
    */
-  public async getQuestionsFromDb(): Promise<QuizQuestion[]> {
+  public async getQuestionsFromDb(quizId: number = this.getQuizId()): Promise<QuizQuestion[]> {
     return await prismaProvider.getClient().quizQuestion.findMany({
-      where: { quizId: this.getQuizId() },
+      where: { quizId: quizId },
       include: { options: true },
     });
   }
@@ -63,13 +64,13 @@ class QuizService {
   /**
    * Get Questions.
    *
+   * @param quizId
    * @returns Promise<QuizQuestion[]>
    */
-  public async getQuestions(): Promise<QuizQuestion[]> {
-    const dbQuestions = await this.getQuestionsFromDb();
+  public async getQuestions(quizId: number = this.getQuizId()): Promise<QuizQuestion[]> {
+    const dbQuestions = await this.getQuestionsFromDb(quizId);
 
     if (dbQuestions.length === 0) {
-      const quizId = this.getQuizId();
       const aiQuestions = await this.getQuestionsFromAi();
 
       for (const aiQuestion of aiQuestions) {
@@ -101,37 +102,138 @@ class QuizService {
   }
 
   /**
-   * Get DTO (Data Transfer Object) Questions.
+   * Set User Answer.
    *
-   * @returns Promise<DtoQuestion[]>
+   * @param userId
+   * @param quizId
+   * @param questionId
+   * @param optionId
+   * @returns Promise<QuizAnswer | null>
    */
-  public async getDtoQuestions(): Promise<DtoQuestion[]> {
-    const result = [];
-    const questions = await this.getQuestions();
+  public async setUserAnswer(userId: number, quizId: number, questionId: number, optionId: number): Promise<QuizAnswer | null> {
+    const quizAnswer = await prismaProvider.getClient().quizAnswer.findFirst({
+      where: {
+        userId,
+        quizId,
+        questionId,
+      },
+    });
 
-    for (const question of questions) {
-      result.push(this.toQuizQuestionDto(question));
+    // The user cannot answer the same question twice.
+    if (quizAnswer) {
+      return null;
+    }
+
+    const quizQuestion = await prismaProvider.getClient().quizQuestion.findUnique({
+      where: { id: questionId },
+      include: { options: true },
+    });
+    if (!quizQuestion || quizQuestion.quizId !== quizId) {
+      return null;
+    }
+
+    let isValidOptionId = false;
+    let isCorrect = false;
+
+    for (const quizQuestionOption of quizQuestion.options) {
+      if (quizQuestionOption.id === optionId) {
+        isValidOptionId = true;
+        isCorrect = quizQuestionOption.option === quizQuestion.answer;
+        break;
+      }
+    }
+
+    if (!isValidOptionId) {
+      return null;
+    }
+
+    return await prismaProvider.getClient().quizAnswer.create({
+      data: {
+        userId,
+        quizId,
+        questionId,
+        optionId,
+        isCorrect,
+      },
+    });
+  }
+
+  /**
+   * Get User Answers.
+   *
+   * @param userId
+   * @param quizId
+   * @returns Promise<QuizAnswer[]>
+   */
+  public async getUserAnswers(userId: number, quizId: number = this.getQuizId()): Promise<QuizAnswer[]> {
+    return await prismaProvider.getClient().quizAnswer.findMany({
+      where: { userId, quizId },
+    });
+  }
+
+  /**
+   * Get User Quiz Data.
+   *
+   * @param userId
+   * @param quizId
+   * @returns Promise<UserQuizData>
+   */
+  public async getUserQuizData(userId: number, quizId: number = this.getQuizId()): Promise<UserQuizData> {
+    const result: UserQuizData = {
+      isCompleted: false,
+      totalQuestions: 0,
+      correctAnswers: 0,
+      wrongAnswers: 0,
+      questions: [],
+    };
+
+    const quizQuestions = await this.getQuestions(quizId);
+    const quizAnswers = await this.getUserAnswers(userId, quizId);
+
+    result.totalQuestions = quizQuestions.length;
+    result.isCompleted = quizQuestions.length === quizAnswers.length;
+
+    const questionAnswers: Record<number, QuizAnswer> = {};
+
+    for (const quizAnswer of quizAnswers) {
+      questionAnswers[quizAnswer.questionId] = quizAnswer;
+
+      if (quizAnswer.isCorrect) {
+        result.correctAnswers++;
+      } else {
+        result.wrongAnswers++;
+      }
+    }
+
+    for (const quizQuestion of quizQuestions) {
+      result.questions.push(this.toUserQuestion(quizQuestion, questionAnswers[quizQuestion.id] ?? null));
     }
 
     return result;
   }
 
   /**
-   * Convert Quiz Question to DTO Question.
+   * Convert Quiz Question to User Question.
    *
    * @param quizQuestion
-   * @returns DtoQuestion
+   * @param quizAnswer
+   * @returns UserQuizQuestion
    */
-  public toQuizQuestionDto(quizQuestion: QuizQuestion): DtoQuestion {
+  public toUserQuestion(quizQuestion: QuizQuestion, quizAnswer: QuizAnswer | null): UserQuizQuestion {
     const options =
-      (quizQuestion as any).options?.map((quizQuestionOption: QuizQuestionOption) => ({
-        id: quizQuestionOption.id,
-        option: quizQuestionOption.option,
-      })) || [];
+      (quizQuestion as any).options?.map(
+        (quizQuestionOption: QuizQuestionOption) =>
+          ({
+            id: quizQuestionOption.id,
+            option: quizQuestionOption.option,
+          }) as UserQuizQuestionOption,
+      ) || [];
 
     return {
       id: quizQuestion.id,
       question: quizQuestion.question,
+      isAnswered: quizAnswer !== null,
+      isCorrect: quizAnswer !== null ? quizAnswer.isCorrect : false,
       options: options,
     };
   }
@@ -147,20 +249,33 @@ type AiQuestion = {
 };
 
 /**
- * DTO Question Option Type.
+ * User Quiz Question Option Type.
  */
-type DtoQuestionOption = {
+type UserQuizQuestionOption = {
   id: number;
   option: string;
 };
 
 /**
- * DTO Question Type.
+ * User Quiz Question Type.
  */
-type DtoQuestion = {
+type UserQuizQuestion = {
   id: number;
   question: string;
-  options: DtoQuestionOption[];
+  isAnswered: boolean;
+  isCorrect: boolean;
+  options: UserQuizQuestionOption[];
+};
+
+/**
+ * User Quiz Data Type.
+ */
+type UserQuizData = {
+  isCompleted: boolean;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  questions: UserQuizQuestion[];
 };
 
 export default new QuizService();
