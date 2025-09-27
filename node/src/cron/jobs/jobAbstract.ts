@@ -5,7 +5,7 @@
 import nodeCron from 'node-cron';
 
 /**
- * Executor Abstract class.
+ * Job Abstract class.
  */
 export default abstract class JobAbstract {
   /**
@@ -40,7 +40,7 @@ export default abstract class JobAbstract {
    *
    * @returns Promise<boolean>
    */
-  public async execute(): Promise<boolean>;
+  public abstract execute(): Promise<boolean>;
 }
 
 export type ExecutorOptions = Record<string, unknown>;
