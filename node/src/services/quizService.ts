@@ -2,7 +2,7 @@
  * @author DiZed Team
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
-import { QuizAnswer, QuizQuestion, QuizQuestionOption } from '@prisma/client';
+import { QuizAnswer, QuizReward, QuizQuestion, QuizQuestionOption } from '@prisma/client';
 import openAiProvider from '../providers/openAiProvider';
 import prismaProvider from '../providers/prismaProvider';
 
@@ -56,7 +56,7 @@ class QuizService {
    */
   public async getQuestionsFromDb(quizId: number = this.getQuizId()): Promise<QuizQuestion[]> {
     return await prismaProvider.getClient().quizQuestion.findMany({
-      where: { quizId: quizId },
+      where: { quizId },
       include: { options: true },
     });
   }
@@ -112,11 +112,7 @@ class QuizService {
    */
   public async setUserAnswer(userId: number, quizId: number, questionId: number, optionId: number): Promise<QuizAnswer | null> {
     const quizAnswer = await prismaProvider.getClient().quizAnswer.findFirst({
-      where: {
-        userId,
-        quizId,
-        questionId,
-      },
+      where: { userId, quizId, questionId },
     });
 
     // The user cannot answer the same question twice.
@@ -169,6 +165,28 @@ class QuizService {
     return await prismaProvider.getClient().quizAnswer.findMany({
       where: { userId, quizId },
     });
+  }
+
+  /**
+   * Is Quiz Completed?
+   *
+   * @param userId
+   * @param quizId
+   * @returns Promise<boolean>
+   */
+  public async isQuizCompleted(userId: number, quizId: number = this.getQuizId()): Promise<boolean> {
+    const prisma = prismaProvider.getClient();
+
+    const [countQuestions, countAnswers] = await Promise.all([
+      prisma.quizQuestion.count({
+        where: { quizId },
+      }),
+      prisma.quizAnswer.count({
+        where: { userId, quizId },
+      }),
+    ]);
+
+    return countQuestions === countAnswers;
   }
 
   /**
@@ -236,6 +254,86 @@ class QuizService {
       isCorrect: quizAnswer !== null ? quizAnswer.isCorrect : false,
       options: options,
     };
+  }
+
+  /**
+   * Set User Reward.
+   *
+   * @param userId
+   * @param quizId
+   * @param quizData
+   * @returns Promise<QuizReward | null>
+   */
+  public async setUserReward(userId: number, quizId: number, quizData: UserQuizData): Promise<QuizReward | null> {
+    if (quizData.totalQuestions !== quizData.correctAnswers + quizData.wrongAnswers) {
+      return null;
+    }
+
+    const quizReward = await prismaProvider.getClient().quizReward.findFirst({
+      where: { userId, quizId },
+    });
+
+    // A user cannot be awarded for the same quiz twice.
+    if (quizReward) {
+      return null;
+    }
+
+    return await prismaProvider.getClient().quizReward.create({
+      data: {
+        userId,
+        quizId,
+        totalQuestions: quizData.totalQuestions,
+        correctAnswers: quizData.correctAnswers,
+        wrongAnswers: quizData.wrongAnswers,
+        earnedTokens: this.calculateQuizReward(quizData),
+        isSent: false,
+      },
+    });
+  }
+
+  /**
+   * Mark Reward As Sent.
+   *
+   * @param userId
+   * @param quizId
+   * @returns Promise<QuizReward | null>
+   */
+  public async markRewardAsSent(userId: number, quizId: number): Promise<QuizReward | null> {
+    const quizReward = await prismaProvider.getClient().quizReward.findFirst({
+      where: { userId, quizId },
+    });
+
+    // The reward cannot be sent twice.
+    if (quizReward && quizReward.isSent) {
+      return null;
+    }
+
+    return await prismaProvider.getClient().quizReward.update({
+      where: { userId_quizId: { userId, quizId } },
+      data: { isSent: true, sentAt: new Date() },
+    });
+  }
+
+  /**
+   * Calculate Quiz Reward.
+   *
+   * @param quizData
+   * @returns number
+   */
+  public calculateQuizReward(quizData: UserQuizData): number {
+    if (quizData.totalQuestions !== quizData.correctAnswers + quizData.wrongAnswers) {
+      return 0;
+    }
+
+    // One token to one correct answer
+    let reward = quizData.correctAnswers;
+
+    // If all answers are correct, the reward will be doubled
+    if (quizData.totalQuestions === quizData.correctAnswers) {
+      reward *= 2;
+    }
+
+    return reward;
   }
 }
 

@@ -37,17 +37,25 @@ export default class AuthController {
    * @param next
    */
   public async setAnswer(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-    const quizId = numberUtil.toPositiveInt(req.body.quizId);
     const questionId = numberUtil.toPositiveInt(req.body.questionId);
     const optionId = numberUtil.toPositiveInt(req.body.optionId);
 
-    if (!quizId || !questionId || !optionId) {
-      return next(new AppError('Invalid payload: quizId, questionId and optionId must be positive integers.', 400));
+    if (!questionId || !optionId) {
+      return next(new AppError('Invalid payload: questionId and optionId must be positive integers.', 400));
     }
+
+    const quizId = quizService.getQuizId();
 
     const quizAnswer = await quizService.setUserAnswer(req.currentUser.id, quizId, questionId, optionId);
     if (!quizAnswer) {
       return next(new AppError('Invalid request.', 400));
+    }
+
+    if (await quizService.isQuizCompleted(req.currentUser.id, quizId)) {
+      const quizData = await quizService.getUserQuizData(req.currentUser.id, quizId);
+      await quizService.setUserReward(req.currentUser.id, quizId, quizData);
+
+      // send the data to the rust server
     }
 
     return res.status(200).json({

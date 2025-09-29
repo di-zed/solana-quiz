@@ -18,6 +18,7 @@ model User {
   createdAt     DateTime @default(now()) @map("created_at")
 
   quizAnswers QuizAnswer[]
+  quizRewards QuizReward[]
 
   @@map("users")
 }
@@ -64,4 +65,22 @@ model QuizAnswer {
 
   @@index([userId, quizId])
   @@map("quiz_answers")
+}
+
+model QuizReward {
+  id             Int       @id @default(autoincrement())
+  userId         Int       @map("user_id")
+  quizId         Int       @map("quiz_id")
+  totalQuestions Int       @map("total_questions")
+  correctAnswers Int       @map("correct_answers")
+  wrongAnswers   Int       @map("wrong_answers")
+  earnedTokens   Int       @map("earned_tokens")
+  isSent         Boolean   @map("is_sent")
+  sentAt         DateTime? @map("sent_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, quizId])
+  @@map("quiz_rewards")
 }
