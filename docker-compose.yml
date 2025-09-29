@@ -1,6 +1,45 @@
 version: '3.9'
 
 services:
+  kafka1:
+    container_name: kafka1-sq
+    image: confluentinc/cp-kafka:8.0.1
+    hostname: docker-kafka1
+    ports:
+      - "${KAFKA1_HOST_PORT}:${KAFKA1_CONTAINER_PORT}"
+      - "${KAFKA1_HOST_PORT_EXT}:${KAFKA1_CONTAINER_PORT_EXT}"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    environment:
+      CLUSTER_ID: ${KAFKA1_CLUSTER_ID}
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka1:${KAFKA1_CONTAINER_PORT},CONTROLLER://kafka1:${KAFKA1_CONTAINER_PORT_EXT}'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka1:${KAFKA1_CONTAINER_PORT}'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:${KAFKA1_CONTAINER_PORT_EXT}'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    networks:
+      - internal
+
+  kafka-ui:
+    container_name: kafka-ui-sq
+    image: provectuslabs/kafka-ui:latest
+    hostname: docker-kafka-ui
+    ports:
+      - "${KAFKA_UI_HOST_PORT}:${KAFKA_UI_CONTAINER_PORT}"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:${KAFKA1_CONTAINER_PORT}
+    depends_on:
+      - kafka1
+    networks:
+      - internal
 
   postgres:
     container_name: postgres-sq
@@ -40,6 +79,7 @@ services:
       - ./volumes/root/bash_history/rust:/root/.bash_history:delegated
     working_dir: /home/app
     depends_on:
+      - kafka1
       - postgres
     networks:
       - internal
@@ -76,6 +116,7 @@ services:
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_CONTAINER_PORT}/${POSTGRES_DB}?schema=public"
     working_dir: /home/app
     depends_on:
+      - kafka1
       - rust
       - redis
     networks:
@@ -104,6 +145,8 @@ services:
       - internal
 
 volumes:
+  kafka_data:
+
   postgres_data:
 
   redis_data:

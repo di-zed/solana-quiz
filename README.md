@@ -33,3 +33,8 @@ npx prisma migrate dev --name init
 npx prisma migrate deploy
 Он не создаёт новые миграции, а применяет только те, что уже были созданные в dev.
 Предназначен для безопасного обновления базы на продакшене.
+
+
+Kafka. Как получить CLUSTER_ID
+docker-compose run kafka1 /bin/bash
+kafka-storage random-uuid
