@@ -9,16 +9,16 @@ solana-keygen pubkey ./secret/mint.json
 
 solana-test-validator
 
-cargo run -- request-airdrop --sol-amount 5
+cargo run --bin solana -- request-airdrop --sol-amount 5
 ...
 
 cargo build --release
-./target/release/solana-quiz request-airdrop --sol-amount 5
-./target/release/solana-quiz create-mint
-./target/release/solana-quiz create-token-account
-./target/release/solana-quiz mint-tokens --amount 1000000
-./target/release/solana-quiz send-tokens --recipient FzCptggk4znyovWcedjDD75E8ZXSJNWxiBfn1WDJ6FQ5 --amount 5
-./target/release/solana-quiz create-metadata-accounts
+./target/release/solana request-airdrop --sol-amount 5
+./target/release/solana create-mint
+./target/release/solana create-token-account
+./target/release/solana mint-tokens --amount 1000000
+./target/release/solana send-tokens --recipient FzCptggk4znyovWcedjDD75E8ZXSJNWxiBfn1WDJ6FQ5 --amount 5
+./target/release/solana create-metadata-accounts
 
 solana account 48TLwzYY1k2xNWBzAXWLmbTHVoMe5SGoux3zwNHH3MkY --url http://host.docker.internal:8899
 solana balance 48TLwzYY1k2xNWBzAXWLmbTHVoMe5SGoux3zwNHH3MkY --url http://host.docker.internal:8899
@@ -33,7 +33,6 @@ npx prisma migrate dev --name init
 npx prisma migrate deploy
 Он не создаёт новые миграции, а применяет только те, что уже были созданные в dev.
 Предназначен для безопасного обновления базы на продакшене.
-
 
 Kafka. Как получить CLUSTER_ID
 docker-compose run kafka1 /bin/bash

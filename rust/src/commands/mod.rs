@@ -39,7 +39,11 @@ pub enum Commands {
     CreateMetadataAccounts {},
 }
 
-pub async fn run(cli: Cli) -> Result<()> {
+/// Runs the CLI application by parsing the user command and executing
+/// the corresponding async handler.
+pub async fn run() -> Result<()> {
+    let cli = Cli::parse();
+
     match cli.command {
         Commands::RequestAirdrop { sol_amount, pubkey } => {
             request_airdrop::run(sol_amount, pubkey).await?;

@@ -1,6 +1,7 @@
 use crate::services::solana_api::SolanaApi;
 use anyhow::Result;
 use solana_program::pubkey::Pubkey;
+use tracing::{error, info};
 
 /// Sends the specified amount of tokens to the given recipient address.
 ///
@@ -14,8 +15,8 @@ pub async fn run(recipient: String, amount: u64) -> Result<()> {
         .send_tokens(&recipient.parse::<Pubkey>()?, amount)
         .await
     {
-        Ok(signature) => println!("Transaction Signature: {}", signature),
-        Err(err) => eprintln!("Error sending transaction: {}", err),
+        Ok(signature) => info!("Transaction Signature: {}", signature),
+        Err(err) => error!("Error sending transaction: {}", err),
     }
 
     Ok(())

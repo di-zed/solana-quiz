@@ -1,6 +1,7 @@
 use crate::services::solana_api::SolanaApi;
 use anyhow::Result;
 use solana_program::pubkey::Pubkey;
+use tracing::{error, info};
 
 /// Runs the airdrop command.
 ///
@@ -27,8 +28,8 @@ pub async fn run(sol_amount: u64, pubkey: Option<String>) -> Result<()> {
         .request_airdrop(sol_amount, &parsed_pubkey)
         .await
     {
-        Ok(signature) => println!("Transaction Signature: {}", signature),
-        Err(err) => eprintln!("Error sending transaction: {}", err),
+        Ok(signature) => info!("Transaction Signature: {}", signature),
+        Err(err) => error!("Error sending transaction: {}", err),
     }
 
     Ok(())

@@ -1,5 +1,6 @@
 use crate::services::solana_api::SolanaApi;
 use anyhow::Result;
+use tracing::{error, info};
 
 /// Mints tokens to the authority account.
 ///
@@ -9,8 +10,8 @@ use anyhow::Result;
 /// Prints the transaction signature on success, or an error message otherwise.
 pub async fn run(amount: u64) -> Result<()> {
     match SolanaApi::new().mint_tokens(amount).await {
-        Ok(signature) => println!("Transaction Signature: {}", signature),
-        Err(err) => eprintln!("Error sending transaction: {}", err),
+        Ok(signature) => info!("Transaction Signature: {}", signature),
+        Err(err) => error!("Error sending transaction: {}", err),
     }
 
     Ok(())
