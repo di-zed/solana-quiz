@@ -12,6 +12,7 @@ import i18n from 'i18n';
 import morgan from 'morgan';
 import path from 'path';
 import Cron from './cron/cron';
+import Kafka from './kafka/kafka';
 import redisProvider from './providers/redisProvider';
 import Routes from './routes';
 
@@ -32,7 +33,9 @@ class Bootstrap {
     redisProvider.connect().then((): void => {});
 
     new Routes(app);
+
     new Cron().run();
+    new Kafka().run();
   }
 
   /**

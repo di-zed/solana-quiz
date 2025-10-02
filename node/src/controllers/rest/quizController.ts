@@ -2,8 +2,10 @@
  * @author DiZed Team
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
+import { QuizReward } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import AppError from '../../errors/appError';
+import kafkaProvider from '../../providers/kafkaProvider';
 import quizService from '../../services/quizService';
 import numberUtil from '../../utils/numberUtil';
 
@@ -53,9 +55,24 @@ export default class AuthController {
 
     if (await quizService.isQuizCompleted(req.currentUser.id, quizId)) {
       const quizData = await quizService.getUserQuizData(req.currentUser.id, quizId);
-      await quizService.setUserReward(req.currentUser.id, quizId, quizData);
+      const quizReward = await quizService.setUserReward(req.currentUser.id, quizId, quizData);
 
-      // send the data to the rust server
+      if (quizReward) {
+        await kafkaProvider.sendMessages({
+          topic: 'solana-quiz-rewards',
+          messages: [
+            {
+              key: `user_${req.currentUser.id}`,
+              value: JSON.stringify({
+                user_id: req.currentUser.id,
+                user_wallet: req.currentUser.wallet,
+                quiz_id: quizId,
+                earned_tokens: quizReward.earnedTokens,
+              }),
+            },
+          ],
+        });
+      }
     }
 
     return res.status(200).json({
