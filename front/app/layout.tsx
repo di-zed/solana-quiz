@@ -3,38 +3,33 @@
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import { AuthProvider } from '../providers/AuthProvider';
-import { SolanaProvider } from '../providers/SolanaProvider';
+import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/providers/auth-provider';
+import { SolanaProvider } from '@/providers/solana-provider';
 import './globals.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Solana Quiz',
   description: 'Solana Quiz',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SolanaProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </SolanaProvider>
-      </body>
-    </html>
+    <>
+      <html lang="en" suppressHydrationWarning>
+        <head />
+        <body>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <SolanaProvider>
+              <AuthProvider>
+                {children}
+                <Toaster position="top-right" richColors />
+              </AuthProvider>
+            </SolanaProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </>
   );
 }

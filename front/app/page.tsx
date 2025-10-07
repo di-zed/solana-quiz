@@ -3,7 +3,7 @@
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
 import Image from 'next/image';
-import WalletLogin from '../components/WalletLogin';
+import WalletLogin from '../components/wallet-login';
 
 export default function Home() {
   return (

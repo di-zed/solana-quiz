@@ -2,7 +2,6 @@
  * @author DiZed Team
  * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
  */
-import { QuizReward } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import AppError from '../../errors/appError';
 import kafkaProvider from '../../providers/kafkaProvider';
@@ -53,7 +52,15 @@ export default class AuthController {
       return next(new AppError('Invalid request.', 400));
     }
 
-    if (await quizService.isQuizCompleted(req.currentUser.id, quizId)) {
+    let correctOptionId = optionId;
+    if (!quizAnswer.isCorrect) {
+      const correctQuestionOption = await quizService.getCorrectQuestionOption(questionId);
+      correctOptionId = correctQuestionOption ? correctQuestionOption.id : 0;
+    }
+
+    const isQuizCompleted = await quizService.isQuizCompleted(req.currentUser.id, quizId);
+
+    if (isQuizCompleted) {
       const quizData = await quizService.getUserQuizData(req.currentUser.id, quizId);
       const quizReward = await quizService.setUserReward(req.currentUser.id, quizId, quizData);
 
@@ -78,7 +85,9 @@ export default class AuthController {
     return res.status(200).json({
       status: 'success',
       data: {
-        isCorrect: quizAnswer.isCorrect,
+        isCorrectAnswer: quizAnswer.isCorrect,
+        correctOptionId,
+        isQuizCompleted,
       },
     });
   }

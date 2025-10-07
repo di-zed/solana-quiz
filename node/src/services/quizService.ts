@@ -57,7 +57,12 @@ class QuizService {
   public async getQuestionsFromDb(quizId: number = this.getQuizId()): Promise<QuizQuestion[]> {
     return await prismaProvider.getClient().quizQuestion.findMany({
       where: { quizId },
-      include: { options: true },
+      include: {
+        options: {
+          orderBy: { id: 'asc' },
+        },
+      },
+      orderBy: { id: 'asc' },
     });
   }
 
@@ -99,6 +104,29 @@ class QuizService {
     }
 
     return dbQuestions;
+  }
+
+  /**
+   * Get Correct Question Option.
+   *
+   * @param questionId
+   * @returns Promise<QuizQuestionOption | null>
+   */
+  public async getCorrectQuestionOption(questionId: number): Promise<QuizQuestionOption | null> {
+    const quizQuestion = await prismaProvider.getClient().quizQuestion.findUnique({
+      where: { id: questionId },
+      include: { options: true },
+    });
+
+    if (quizQuestion) {
+      for (const quizQuestionOption of quizQuestion.options) {
+        if (quizQuestionOption.option === quizQuestion.answer) {
+          return quizQuestionOption;
+        }
+      }
+    }
+
+    return null;
   }
 
   /**

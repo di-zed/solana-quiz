@@ -2,7 +2,7 @@
 
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useAuth } from '../providers/AuthProvider';
+import { useAuth } from '../providers/auth-provider';
 
 export default function WalletLogin() {
   const { connected } = useWallet();
