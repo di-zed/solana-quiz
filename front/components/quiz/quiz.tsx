@@ -4,11 +4,17 @@ import React, { useEffect, useState } from 'react';
 import { AlertElement } from '@/components/elements/alert';
 import { QuizForm } from '@/components/quiz/form';
 import { Summary } from '@/components/quiz/summary';
-import { UserQuizData, UserQuizQuestion } from '@/types/quiz';
+import { UserQuizData, UserQuizQuestion, UserQuizQuestionAnswer } from '@/types/quiz';
 
 export default function Quiz() {
   const [quizData, setQuizData] = useState<UserQuizData | null>(null);
+
+  const [isQuizCompleted, setIsQuizCompleted] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  const [correctAnswers, setCorrectAnswers] = useState<number>(0);
+  const [wrongAnswers, setWrongAnswers] = useState<number>(0);
+  const [earnedTokens, setEarnedTokens] = useState<number>(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +40,13 @@ export default function Quiz() {
         const startIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : data.data.questions.length - 1;
 
         setQuizData(data.data);
+
+        setIsQuizCompleted(firstUnansweredIndex === -1);
         setCurrentIndex(startIndex);
+        setEarnedTokens(data.data.earnedTokens);
+
+        setCorrectAnswers(data.data.correctAnswers || 0);
+        setWrongAnswers(data.data.wrongAnswers || 0);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -59,8 +71,41 @@ export default function Quiz() {
 
   return (
     <div className="space-y-12">
-      <Summary quizData={quizData} />
-      <QuizForm quizData={quizData} quizQuestion={currentQuestion} />
+      <Summary quizData={quizData} correctAnswers={correctAnswers} wrongAnswers={wrongAnswers} earnedTokens={earnedTokens} />
+      <hr />
+      {!isQuizCompleted ? (
+        <QuizForm
+          quizData={quizData}
+          quizQuestion={currentQuestion}
+          currentIndex={currentIndex}
+          onAnswered={(answer: UserQuizQuestionAnswer) => {
+            setIsQuizCompleted(answer.isQuizCompleted);
+            setCurrentIndex((prev) => prev + 1);
+            setEarnedTokens(answer.earnedTokens);
+
+            if (answer.isCorrectAnswer) {
+              setCorrectAnswers((prev) => prev + 1);
+            } else {
+              setWrongAnswers((prev) => prev + 1);
+            }
+          }}
+        />
+      ) : (
+        <AlertElement
+          title="Quiz completed!"
+          description={
+            <>
+              You’ve answered all the questions 🎉
+              {earnedTokens > 0 && (
+                <>
+                  <br />
+                  You’ve earned {earnedTokens} tokens, which will be credited to your account soon 💰
+                </>
+              )}
+            </>
+          }
+        />
+      )}
     </div>
   );
 }

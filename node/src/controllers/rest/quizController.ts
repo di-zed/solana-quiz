@@ -58,6 +58,7 @@ export default class AuthController {
       correctOptionId = correctQuestionOption ? correctQuestionOption.id : 0;
     }
 
+    let earnedTokens = 0;
     const isQuizCompleted = await quizService.isQuizCompleted(req.currentUser.id, quizId);
 
     if (isQuizCompleted) {
@@ -65,6 +66,8 @@ export default class AuthController {
       const quizReward = await quizService.setUserReward(req.currentUser.id, quizId, quizData);
 
       if (quizReward) {
+        earnedTokens = quizReward.earnedTokens;
+
         await kafkaProvider.sendMessages({
           topic: 'solana-quiz-rewards',
           messages: [
@@ -87,7 +90,9 @@ export default class AuthController {
       data: {
         isCorrectAnswer: quizAnswer.isCorrect,
         correctOptionId,
+        selectedOptionId: optionId,
         isQuizCompleted,
+        earnedTokens,
       },
     });
   }

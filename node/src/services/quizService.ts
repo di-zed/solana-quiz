@@ -231,6 +231,7 @@ class QuizService {
       correctAnswers: 0,
       wrongAnswers: 0,
       questions: [],
+      earnedTokens: 0,
     };
 
     const quizQuestions = await this.getQuestions(quizId);
@@ -253,6 +254,14 @@ class QuizService {
 
     for (const quizQuestion of quizQuestions) {
       result.questions.push(this.toUserQuestion(quizQuestion, questionAnswers[quizQuestion.id] ?? null));
+    }
+
+    if (result.isCompleted) {
+      const quizReward = await this.getUserReward(userId, quizId);
+
+      if (quizReward) {
+        result.earnedTokens = quizReward.earnedTokens;
+      }
     }
 
     return result;
@@ -285,6 +294,19 @@ class QuizService {
   }
 
   /**
+   * Get User Reward.
+   *
+   * @param userId
+   * @param quizId
+   * @returns Promise<QuizReward | null>
+   */
+  public async getUserReward(userId: number, quizId: number): Promise<QuizReward | null> {
+    return await prismaProvider.getClient().quizReward.findFirst({
+      where: { userId, quizId },
+    });
+  }
+
+  /**
    * Set User Reward.
    *
    * @param userId
@@ -297,12 +319,8 @@ class QuizService {
       return null;
     }
 
-    const quizReward = await prismaProvider.getClient().quizReward.findFirst({
-      where: { userId, quizId },
-    });
-
     // A user cannot be awarded for the same quiz twice.
-    if (quizReward) {
+    if (await this.getUserReward(userId, quizId)) {
       return null;
     }
 
@@ -402,6 +420,7 @@ type UserQuizData = {
   correctAnswers: number;
   wrongAnswers: number;
   questions: UserQuizQuestion[];
+  earnedTokens: number;
 };
 
 export default new QuizService();

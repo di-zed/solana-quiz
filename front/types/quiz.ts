@@ -26,4 +26,16 @@ export type UserQuizData = {
   correctAnswers: number;
   wrongAnswers: number;
   questions: UserQuizQuestion[];
+  earnedTokens: number;
+};
+
+/**
+ * User Quiz Question Answer Type.
+ */
+export type UserQuizQuestionAnswer = {
+  isCorrectAnswer: boolean;
+  correctOptionId: number;
+  selectedOptionId: number;
+  isQuizCompleted: boolean;
+  earnedTokens: number;
 };
