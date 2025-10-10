@@ -96,11 +96,13 @@ export default function Quiz() {
           description={
             <>
               You’ve answered all the questions 🎉
-              {earnedTokens > 0 && (
+              <br />
+              {earnedTokens > 0 ? (
                 <>
-                  <br />
-                  You’ve earned {earnedTokens} tokens, which will be credited to your account soon 💰
+                  You’ve earned {earnedTokens} {earnedTokens > 1 ? 'tokens' : 'token'}, which will be credited to your account soon 💰
                 </>
+              ) : (
+                <>😔 No luck this time! But don’t worry - a new quiz awaits you tomorrow. Give it another shot and win tokens! 💪</>
               )}
             </>
           }

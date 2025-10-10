@@ -1,9 +1,5 @@
 'use client';
 
-/**
- * @author DiZed Team
- * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
- */
 import { useWallet } from '@solana/wallet-adapter-react';
 import bs58 from 'bs58';
 import React, { createContext, useContext, useEffect, useState } from 'react';

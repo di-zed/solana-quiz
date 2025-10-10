@@ -1,10 +1,5 @@
 'use client';
 
-/**
- * @author DiZed Team
- * @copyright Copyright (c) DiZed Team (https://github.com/di-zed/)
- */
-
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';

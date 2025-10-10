@@ -39,3 +39,27 @@ export type UserQuizQuestionAnswer = {
   isQuizCompleted: boolean;
   earnedTokens: number;
 };
+
+/**
+ * User Reward Type.
+ */
+export type UserReward = {
+  date: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  earnedTokens: number;
+  isSent: boolean;
+};
+
+/**
+ * User Reward Data Type.
+ */
+export type UserRewardData = {
+  totalQuizzes: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  earnedTokens: number;
+  rewards: UserReward[];
+};

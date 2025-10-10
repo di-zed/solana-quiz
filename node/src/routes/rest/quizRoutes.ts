@@ -41,6 +41,7 @@ class QuizRoutes {
   protected initRoutes(): void {
     // GET
     this.router.route('/questions').get(catchAsync(authMiddleware), catchAsync(this.controller.getQuestions.bind(this.controller)));
+    this.router.route('/rewards').get(catchAsync(authMiddleware), catchAsync(this.controller.getRewards.bind(this.controller)));
 
     // POST
     this.router.route('/answer').post(catchAsync(authMiddleware), catchAsync(this.controller.setAnswer.bind(this.controller)));

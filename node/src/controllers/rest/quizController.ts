@@ -30,6 +30,23 @@ export default class AuthController {
   }
 
   /**
+   * GET Method.
+   * URI for getting rewards.
+   *
+   * @param req
+   * @param res
+   * @param next
+   */
+  public async getRewards(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    const rewardData = await quizService.getUserRewardData(req.currentUser.id);
+
+    return res.status(200).json({
+      status: 'success',
+      data: rewardData,
+    });
+  }
+
+  /**
    * POST Method.
    * URI for setting an answer.
    *
@@ -65,7 +82,7 @@ export default class AuthController {
       const quizData = await quizService.getUserQuizData(req.currentUser.id, quizId);
       const quizReward = await quizService.setUserReward(req.currentUser.id, quizId, quizData);
 
-      if (quizReward) {
+      if (quizReward && quizReward.earnedTokens > 0) {
         earnedTokens = quizReward.earnedTokens;
 
         await kafkaProvider.sendMessages({

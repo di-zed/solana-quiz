@@ -338,6 +338,19 @@ class QuizService {
   }
 
   /**
+   * Get User Rewards.
+   *
+   * @param userId
+   * @returns Promise<QuizReward[]>
+   */
+  public async getUserRewards(userId: number): Promise<QuizReward[]> {
+    return await prismaProvider.getClient().quizReward.findMany({
+      where: { userId },
+      orderBy: { id: 'desc' },
+    });
+  }
+
+  /**
    * Mark Reward As Sent.
    *
    * @param userId
@@ -381,6 +394,47 @@ class QuizService {
 
     return reward;
   }
+
+  /**
+   * Get User Reward Data.
+   *
+   * @param userId
+   * @returns Promise<UserQuizData>
+   */
+  public async getUserRewardData(userId: number): Promise<UserRewardData> {
+    const result: UserRewardData = {
+      totalQuizzes: 0,
+      totalQuestions: 0,
+      correctAnswers: 0,
+      wrongAnswers: 0,
+      earnedTokens: 0,
+      rewards: [],
+    };
+
+    const rewards = await this.getUserRewards(userId);
+
+    for (const reward of rewards) {
+      const userReward: UserReward = {
+        date: new Date(reward.createdAt).toISOString().split('T')[0],
+        totalQuestions: reward.totalQuestions,
+        correctAnswers: reward.correctAnswers,
+        wrongAnswers: reward.wrongAnswers,
+        earnedTokens: reward.earnedTokens,
+        isSent: reward.isSent,
+      };
+
+      result.totalQuizzes++;
+
+      result.totalQuestions += userReward.totalQuestions;
+      result.correctAnswers += userReward.correctAnswers;
+      result.wrongAnswers += userReward.wrongAnswers;
+      result.earnedTokens += userReward.earnedTokens;
+
+      result.rewards.push(userReward);
+    }
+
+    return result;
+  }
 }
 
 /**
@@ -421,6 +475,30 @@ type UserQuizData = {
   wrongAnswers: number;
   questions: UserQuizQuestion[];
   earnedTokens: number;
+};
+
+/**
+ * User Reward Type.
+ */
+type UserReward = {
+  date: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  earnedTokens: number;
+  isSent: boolean;
+};
+
+/**
+ * User Reward Data Type.
+ */
+type UserRewardData = {
+  totalQuizzes: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  earnedTokens: number;
+  rewards: UserReward[];
 };
 
 export default new QuizService();

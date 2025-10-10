@@ -2,10 +2,10 @@
 
 import { ArrowLeftIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Quiz from '@/components/quiz/quiz';
+import Statistics from '@/components/statistics/statistics';
 import { Button } from '@/components/ui/button';
 
-export default function QuizPage() {
+export default function StatisticsPage() {
   const router = useRouter();
 
   const handleGoBack = () => {
@@ -21,7 +21,7 @@ export default function QuizPage() {
         </Button>
         <br />
         <br />
-        <Quiz />
+        <Statistics />
       </div>
     </div>
   );
