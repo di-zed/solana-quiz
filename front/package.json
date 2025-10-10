@@ -1,6 +1,7 @@
 {
   "name": "solana-quiz",
   "version": "0.1.0",
+  "description": "The Solana Quiz application",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -8,6 +9,29 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/di-zed/solana-quiz.git"
+  },
+  "keywords": [
+    "dized",
+    "solana",
+    "web3",
+    "token",
+    "blockchain",
+    "quiz",
+    "rust",
+    "node",
+    "react",
+    "postgres",
+    "kafka"
+  ],
+  "author": "DiZed Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/di-zed/solana-quiz/issues"
+  },
+  "homepage": "https://github.com/di-zed/solana-quiz#readme",
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-label": "^2.1.7",

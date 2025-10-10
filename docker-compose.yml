@@ -84,20 +84,6 @@ services:
     networks:
       - internal
 
-  redis:
-    container_name: redis-sq
-    image: redis:7.4.5
-    command: redis-server /usr/local/etc/redis/redis.conf
-    hostname: docker-redis
-    ports:
-      - '${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}'
-    volumes:
-      - redis_data:/data
-      - redis_run:/run
-      - ./volumes/usr/local/etc/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      - internal
-
   node:
     container_name: node-sq
     build:
@@ -118,7 +104,6 @@ services:
     depends_on:
       - kafka1
       - rust
-      - redis
     networks:
       - internal
 
@@ -148,9 +133,6 @@ volumes:
   kafka_data:
 
   postgres_data:
-
-  redis_data:
-  redis_run:
 
 networks:
   internal:

@@ -21,15 +21,15 @@
   "keywords": [
     "dized",
     "solana",
+    "web3",
+    "token",
+    "blockchain",
     "quiz",
-    "telegram",
-    "bot",
-    "react",
-    "node",
     "rust",
-    "redis",
-    "kafka",
-    "websocket"
+    "node",
+    "react",
+    "postgres",
+    "kafka"
   ],
   "author": "DiZed Team",
   "license": "MIT",
@@ -56,7 +56,6 @@
     "node-cron": "^4.2.1",
     "npm": "^11.2.0",
     "openai": "^5.23.0",
-    "redis": "^4.7.0",
     "tweetnacl": "^1.0.3",
     "xss-clean": "^0.1.4"
   },
