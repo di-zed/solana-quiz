@@ -11,6 +11,4 @@ volumes/root/.cargo/registry/*
 volumes/root/bash_history/*
 !volumes/root/bash_history/*.sample
 
-volumes/usr/local/etc/redis/redis.conf
-
 !.gitkeep
