@@ -5,16 +5,16 @@
 > Each quiz is dynamically generated using **OpenAI**, ensuring fresh, interesting, and challenging questions every day.
 
 ### 🚀 Key Features
-- **Daily AI-powered quizzes** – questions are generated with OpenAI and stored in the database for consistent access throughout the day.
-- **Token rewards** – users earn **our own custom SPL token** for correct answers, minted and distributed via the Solana blockchain.
-- **Transparent and decentralized** – blockchain ensures verifiable, tamper-proof rewards.
-- **Seamless wallet integration** – currently supports **Phantom Wallet**, with the possibility to add other Solana wallets.
+- **Daily AI-powered quizzes** - questions are generated with OpenAI and stored in the database for consistent access throughout the day.
+- **Token rewards** - users earn **our own custom SPL token** for correct answers, minted and distributed via the Solana blockchain.
+- **Transparent and decentralized** - blockchain ensures verifiable, tamper-proof rewards.
+- **Seamless wallet integration** - currently supports **Phantom Wallet**, with the possibility to add other Solana wallets.
 
 ### 🌍 Use Cases
-- **Corporate training & engagement** – motivate employees with fun quizzes and token rewards.
-- **Educational platforms** – incentivize students to participate and learn through tokenized quizzes.
-- **Community engagement** – create interactive dApps for crypto communities, rewarding participation with on-chain tokens.
-- **Gamification & loyalty programs** – reward users with on-chain tokens for engagement, participation, or achievements.
+- **Corporate training & engagement** - motivate employees with fun quizzes and token rewards.
+- **Educational platforms** - incentivize students to participate and learn through tokenized quizzes.
+- **Community engagement** - create interactive dApps for crypto communities, rewarding participation with on-chain tokens.
+- **Gamification & loyalty programs** - reward users with on-chain tokens for engagement, participation, or achievements.
 
 ---
 
