@@ -1,0 +1,186 @@
+{
+  "address": "Ej4LLtFBrg8SXuSusmm5nHyqaMn4BZ31hyPGtLfQmA1P",
+  "metadata": {
+    "name": "solana_quiz_rewards",
+    "version": "0.1.1",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quiz_user_data",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97,
+                  95,
+                  118,
+                  50
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_quiz_results",
+      "discriminator": [
+        158,
+        252,
+        146,
+        14,
+        40,
+        167,
+        27,
+        184
+      ],
+      "accounts": [
+        {
+          "name": "user"
+        },
+        {
+          "name": "quiz_user_data",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97,
+                  95,
+                  118,
+                  50
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "total_questions",
+          "type": "u64"
+        },
+        {
+          "name": "correct_answers",
+          "type": "u64"
+        },
+        {
+          "name": "earned_tokens",
+          "type": "u64"
+        },
+        {
+          "name": "streak_days",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "QuizUserData",
+      "discriminator": [
+        22,
+        32,
+        174,
+        63,
+        38,
+        85,
+        246,
+        109
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "QuizUserData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "last_quiz_day",
+            "type": "u64"
+          },
+          {
+            "name": "streak",
+            "type": "u8"
+          },
+          {
+            "name": "total_quizzes",
+            "type": "u64"
+          },
+          {
+            "name": "total_questions",
+            "type": "u64"
+          },
+          {
+            "name": "correct_answers",
+            "type": "u64"
+          },
+          {
+            "name": "earned_tokens",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

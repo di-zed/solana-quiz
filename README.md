@@ -380,7 +380,7 @@ docker system prune -f
 
 ---
 
-⭐ If you find this project useful, consider giving it a star — it helps others discover it.  
+⭐ If you find this project useful, consider giving it a star - it helps others discover it.  
 Moreover, every star helps me stay motivated.  
 Thanks for the support!
 

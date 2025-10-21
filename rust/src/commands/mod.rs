@@ -7,6 +7,7 @@ mod create_token_account;
 mod mint_tokens;
 mod request_airdrop;
 mod send_tokens;
+mod test;
 
 #[derive(Parser)]
 #[command(name = "solana-quiz")]
@@ -37,6 +38,7 @@ pub enum Commands {
         amount: u64,
     },
     CreateMetadataAccounts {},
+    Test {},
 }
 
 /// Runs the CLI application by parsing the user command and executing
@@ -62,6 +64,9 @@ pub async fn run() -> Result<()> {
         }
         Commands::CreateMetadataAccounts {} => {
             create_metadata_accounts::run().await?;
+        }
+        Commands::Test {} => {
+            test::run().await?;
         }
     }
 
