@@ -12,7 +12,7 @@ solana_quiz_rewards = "Ej4LLtFBrg8SXuSusmm5nHyqaMn4BZ31hyPGtLfQmA1P"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "http://host.docker.internal:8899"
+cluster = "https://api.devnet.solana.com"
 wallet = "./../../secret/authority.json"
 
 [scripts]

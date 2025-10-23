@@ -65,6 +65,48 @@
       "args": []
     },
     {
+      "name": "transfer_tokens",
+      "discriminator": [
+        54,
+        180,
+        238,
+        175,
+        74,
+        85,
+        126,
+        188
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "sender_token_account",
+          "writable": true
+        },
+        {
+          "name": "recipient_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "update_quiz_results",
       "discriminator": [
         158,
@@ -145,6 +187,28 @@
       ]
     }
   ],
+  "events": [
+    {
+      "name": "StreakAchieved",
+      "discriminator": [
+        200,
+        176,
+        111,
+        144,
+        102,
+        85,
+        204,
+        145
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "AlreadyPlayedToday",
+      "msg": "User already completed quiz today"
+    }
+  ],
   "types": [
     {
       "name": "QuizUserData",
@@ -178,6 +242,22 @@
           {
             "name": "earned_tokens",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StreakAchieved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "streak",
+            "type": "u8"
           }
         ]
       }
