@@ -1,3 +1,4 @@
+use crate::models::kafka::SolanaQuizReward;
 use anyhow::Result;
 use async_trait::async_trait;
 
@@ -21,4 +22,10 @@ pub trait KafkaConsumerHandler: Send + Sync {
 
     /// Handles an incoming Kafka message payload asynchronously.
     async fn handle(&self, payload: &str) -> Result<()>;
+
+    /// Sends the earned tokens to the user's wallet via on-chain Solana transaction.
+    async fn send_tokens_on_chain(&self, reward: &SolanaQuizReward) -> Result<()>;
+
+    /// Sends the earned tokens to the user's wallet via an off-chain mechanism.
+    async fn send_tokens_off_chain(&self, reward: &SolanaQuizReward) -> Result<()>;
 }

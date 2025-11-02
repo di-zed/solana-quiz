@@ -6,6 +6,8 @@ pub struct SolanaQuizReward {
     pub user_id: u64,
     pub user_wallet: String,
     pub quiz_id: u64,
+    pub total_questions: u64,
+    pub correct_answers: u64,
     pub earned_tokens: u64,
 }
 

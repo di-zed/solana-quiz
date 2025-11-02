@@ -94,6 +94,8 @@ export default class AuthController {
                 user_id: req.currentUser.id,
                 user_wallet: req.currentUser.wallet,
                 quiz_id: quizId,
+                total_questions: quizReward.totalQuestions,
+                correct_answers: quizReward.correctAnswers,
                 earned_tokens: quizReward.earnedTokens,
               }),
             },

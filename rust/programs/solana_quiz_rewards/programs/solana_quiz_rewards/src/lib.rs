@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, TransferChecked, Mint, Token, TokenAccount};
+use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
 declare_id!("Ej4LLtFBrg8SXuSusmm5nHyqaMn4BZ31hyPGtLfQmA1P");
 
@@ -40,6 +40,16 @@ pub mod solana_quiz_rewards {
         let now_ts = Clock::get()?.unix_timestamp;
         let current_day = (now_ts / 86400) as u64;
 
+        msg!(
+            "INPUT | User: {}, Current Day: {}, Total Questions: {}, Correct Answers: {}, Earned Tokens: {}, Streak Days: {}",
+            user_data.user_wallet,
+            current_day,
+            total_questions,
+            correct_answers,
+            earned_tokens,
+            streak_days
+        );
+
         // Prevent multiple quizzes in one day
         if user_data.last_quiz_day == current_day {
             msg!(
@@ -49,6 +59,17 @@ pub mod solana_quiz_rewards {
             );
             return Err(error!(QuizError::AlreadyPlayedToday));
         }
+
+        msg!(
+            "BEFORE | User: {}, Last Quiz Day: {}, Streak: {}, Total Quizzes: {}, Total Questions: {}, Correct Answers: {}, Earned Tokens: {}",
+            user_data.user_wallet,
+            user_data.last_quiz_day,
+            user_data.streak,
+            user_data.total_quizzes,
+            user_data.total_questions,
+            user_data.correct_answers,
+            user_data.earned_tokens
+        );
 
         // Update overall quiz stats
         user_data.total_quizzes += 1;
@@ -61,11 +82,15 @@ pub mod solana_quiz_rewards {
             user_data.streak = 0;
         }
 
-        // Increment streak if consecutive day, else reset to 1
-        if user_data.last_quiz_day + 1 == current_day {
-            user_data.streak += 1;
+        if total_questions == correct_answers {
+            // Increment streak if consecutive day, else reset to 1
+            if user_data.last_quiz_day + 1 == current_day {
+                user_data.streak += 1;
+            } else {
+                user_data.streak = 1;
+            }
         } else {
-            user_data.streak = 1;
+            user_data.streak = 0;
         }
 
         // Emit event if streak goal achieved
@@ -76,14 +101,18 @@ pub mod solana_quiz_rewards {
             });
         }
 
-        msg!(
-            "🎯 User {:?} finished quiz day {} (streak: {})",
-            user_data.user_wallet,
-            current_day,
-            user_data.streak
-        );
-
         user_data.last_quiz_day = current_day;
+
+        msg!(
+            "AFTER | User: {}, Last Quiz Day: {}, Streak: {}, Total Quizzes: {}, Total Questions: {}, Correct Answers: {}, Earned Tokens: {}",
+            user_data.user_wallet,
+            user_data.last_quiz_day,
+            user_data.streak,
+            user_data.total_quizzes,
+            user_data.total_questions,
+            user_data.correct_answers,
+            user_data.earned_tokens
+        );
 
         Ok(())
     }

@@ -5,7 +5,7 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.localnet]
+[programs.devnet]
 solana_quiz_rewards = "Ej4LLtFBrg8SXuSusmm5nHyqaMn4BZ31hyPGtLfQmA1P"
 
 [registry]
