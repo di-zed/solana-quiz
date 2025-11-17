@@ -75,6 +75,7 @@ model QuizReward {
   correctAnswers Int       @map("correct_answers")
   wrongAnswers   Int       @map("wrong_answers")
   earnedTokens   Int       @map("earned_tokens")
+  streakDays     Int       @map("streak_days") @default(0)
   isSent         Boolean   @map("is_sent")
   sentAt         DateTime? @map("sent_at")
   createdAt      DateTime  @default(now()) @map("created_at")

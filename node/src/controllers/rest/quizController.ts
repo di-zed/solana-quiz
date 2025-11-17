@@ -76,6 +76,8 @@ export default class AuthController {
     }
 
     let earnedTokens = 0;
+    let streakDays = 0;
+
     const isQuizCompleted = await quizService.isQuizCompleted(req.currentUser.id, quizId);
 
     if (isQuizCompleted) {
@@ -84,6 +86,7 @@ export default class AuthController {
 
       if (quizReward && quizReward.earnedTokens > 0) {
         earnedTokens = quizReward.earnedTokens;
+        streakDays = quizReward.streakDays;
 
         await kafkaProvider.sendMessages({
           topic: 'solana-quiz-rewards',
@@ -97,6 +100,7 @@ export default class AuthController {
                 total_questions: quizReward.totalQuestions,
                 correct_answers: quizReward.correctAnswers,
                 earned_tokens: quizReward.earnedTokens,
+                streak_days: quizReward.streakDays,
               }),
             },
           ],
@@ -112,6 +116,7 @@ export default class AuthController {
         selectedOptionId: optionId,
         isQuizCompleted,
         earnedTokens,
+        streakDays,
       },
     });
   }

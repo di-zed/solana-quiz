@@ -18,6 +18,7 @@ export function Rewards({ rewardData }: UserRewardData) {
             <TableHead className="text-right">Correct Answers</TableHead>
             <TableHead className="text-right">Wrong Answers</TableHead>
             <TableHead className="text-right">Earned Tokens</TableHead>
+            <TableHead className="text-right">Streak Days</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -29,6 +30,7 @@ export function Rewards({ rewardData }: UserRewardData) {
               <TableCell className="text-right">{reward.correctAnswers}</TableCell>
               <TableCell className="text-right">{reward.wrongAnswers}</TableCell>
               <TableCell className="text-right">{reward.earnedTokens}</TableCell>
+              <TableCell className="text-right">{reward.streakDays}</TableCell>
               <TableCell>{reward.isSent ? 'Sent' : 'Waiting'}</TableCell>
             </TableRow>
           ))}
@@ -40,6 +42,7 @@ export function Rewards({ rewardData }: UserRewardData) {
             <TableCell className="text-right">{rewardData.correctAnswers}</TableCell>
             <TableCell className="text-right">{rewardData.wrongAnswers}</TableCell>
             <TableCell className="text-right">{rewardData.earnedTokens}</TableCell>
+            <TableCell></TableCell>
             <TableCell></TableCell>
           </TableRow>
         </TableFooter>

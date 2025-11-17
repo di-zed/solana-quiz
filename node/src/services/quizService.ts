@@ -5,6 +5,7 @@
 import { QuizAnswer, QuizReward, QuizQuestion, QuizQuestionOption } from '@prisma/client';
 import openAiProvider from '../providers/openAiProvider';
 import prismaProvider from '../providers/prismaProvider';
+import configUtil from '../utils/configUtil';
 
 /**
  * Quiz Service.
@@ -17,6 +18,19 @@ class QuizService {
    */
   public getQuizId(): number {
     const quizId = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    return parseInt(quizId);
+  }
+
+  /**
+   * Get Previous Quiz ID.
+   *
+   * @returns number
+   */
+  public getPrevQuizId(): number {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const quizId = yesterday.toISOString().slice(0, 10).replace(/-/g, '');
     return parseInt(quizId);
   }
 
@@ -232,6 +246,7 @@ class QuizService {
       wrongAnswers: 0,
       questions: [],
       earnedTokens: 0,
+      streakDays: 0,
     };
 
     const quizQuestions = await this.getQuestions(quizId);
@@ -261,6 +276,7 @@ class QuizService {
 
       if (quizReward) {
         result.earnedTokens = quizReward.earnedTokens;
+        result.streakDays = quizReward.streakDays;
       }
     }
 
@@ -332,6 +348,7 @@ class QuizService {
         correctAnswers: quizData.correctAnswers,
         wrongAnswers: quizData.wrongAnswers,
         earnedTokens: this.calculateQuizReward(quizData),
+        streakDays: await this.calculateQuizStreakDays(userId, quizData),
         isSent: false,
       },
     });
@@ -396,6 +413,33 @@ class QuizService {
   }
 
   /**
+   * Calculate Quiz Streak Days.
+   *
+   * @param userId
+   * @param quizData
+   * @returns Promise<number>
+   */
+  public async calculateQuizStreakDays(userId: number, quizData: UserQuizData): Promise<number> {
+    if (quizData.totalQuestions !== quizData.correctAnswers) {
+      return 0;
+    }
+
+    let streakDays = 1;
+
+    const prevReward = await this.getUserReward(userId, this.getPrevQuizId());
+    if (prevReward) {
+      streakDays += prevReward.streakDays;
+      const goalStreakDays = parseInt(configUtil.getRequiredEnv('SOLANA_STREAK_DAYS'));
+
+      if (streakDays > goalStreakDays) {
+        streakDays = 1;
+      }
+    }
+
+    return streakDays;
+  }
+
+  /**
    * Get User Reward Data.
    *
    * @param userId
@@ -408,18 +452,22 @@ class QuizService {
       correctAnswers: 0,
       wrongAnswers: 0,
       earnedTokens: 0,
+      streaks: 0,
       rewards: [],
     };
 
     const rewards = await this.getUserRewards(userId);
 
     for (const reward of rewards) {
+      const goalStreakDays = parseInt(configUtil.getRequiredEnv('SOLANA_STREAK_DAYS'));
+
       const userReward: UserReward = {
         date: new Date(reward.createdAt).toISOString().split('T')[0],
         totalQuestions: reward.totalQuestions,
         correctAnswers: reward.correctAnswers,
         wrongAnswers: reward.wrongAnswers,
         earnedTokens: reward.earnedTokens,
+        streakDays: reward.streakDays,
         isSent: reward.isSent,
       };
 
@@ -429,6 +477,7 @@ class QuizService {
       result.correctAnswers += userReward.correctAnswers;
       result.wrongAnswers += userReward.wrongAnswers;
       result.earnedTokens += userReward.earnedTokens;
+      result.streaks += userReward.streakDays === goalStreakDays ? 1 : 0;
 
       result.rewards.push(userReward);
     }
@@ -475,6 +524,7 @@ type UserQuizData = {
   wrongAnswers: number;
   questions: UserQuizQuestion[];
   earnedTokens: number;
+  streakDays: number;
 };
 
 /**
@@ -486,6 +536,7 @@ type UserReward = {
   correctAnswers: number;
   wrongAnswers: number;
   earnedTokens: number;
+  streakDays: number;
   isSent: boolean;
 };
 
@@ -498,6 +549,7 @@ type UserRewardData = {
   correctAnswers: number;
   wrongAnswers: number;
   earnedTokens: number;
+  streaks: number;
   rewards: UserReward[];
 };
 

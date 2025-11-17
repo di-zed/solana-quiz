@@ -1,6 +1,8 @@
 use crate::models::kafka::SolanaQuizReward;
+use crate::services::blockchain_api::solana_quiz_rewards::accounts::QuizUserData;
 use anyhow::Result;
 use async_trait::async_trait;
+use solana_sdk::signature::Signature;
 
 pub mod solana_quiz_reward;
 
@@ -24,8 +26,11 @@ pub trait KafkaConsumerHandler: Send + Sync {
     async fn handle(&self, payload: &str) -> Result<()>;
 
     /// Sends the earned tokens to the user's wallet via on-chain Solana transaction.
-    async fn send_tokens_on_chain(&self, reward: &SolanaQuizReward) -> Result<()>;
+    async fn send_tokens_on_chain(&self, reward: &SolanaQuizReward) -> Result<QuizUserData>;
 
     /// Sends the earned tokens to the user's wallet via an off-chain mechanism.
-    async fn send_tokens_off_chain(&self, reward: &SolanaQuizReward) -> Result<()>;
+    async fn send_tokens_off_chain(&self, reward: &SolanaQuizReward) -> Result<Signature>;
+
+    /// Sends NFT rewards to the user based on their quiz performance and streak.
+    async fn send_nft_rewards(&self, reward: &SolanaQuizReward) -> Result<()>;
 }

@@ -96,22 +96,22 @@ Example payload:
   "user_id": 1,
   "user_wallet": "...",
   "quiz_id": "20251212",
-  "earned_tokens": 10
+  "total_questions": 5,
+  "correct_answers": 5,
+  "earned_tokens": 10,
+  "streak_days": 7
 }
 ```
 
 ### 4️⃣ Rust Service Processes Reward
 
-This project integrates **Solana on-chain rewards** with an **off-chain Rust service** to distribute tokens to users who
-complete quiz streaks.
+This project integrates **Solana on-chain rewards** with an **off-chain Rust service** that distributes both **token rewards**
+and **NFT rewards** based on user quiz streaks.
 
-### ⚙️ Environment configuration
+Reward behavior is controlled through environment variables:
 
-Enable on-chain functionality in your `.env` file:
-
-```env
-SOLANA_ON_CHAIN=true
-```
+- **SOLANA_ON_CHAIN** — enables or disables on-chain reward transfers.
+- **SOLANA_STREAK_DAYS** — sets how many consecutive correct-answer days are required to mint an NFT reward.
 
 ### 🧩 Architecture overview
 
@@ -210,6 +210,29 @@ Node.js listens to `solana-quiz-reward-applied` and updates the database upon co
 distributed.
 
 ![Statistics](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/statistics.png)
+
+### 6️⃣ NFT Reward for Streaks
+
+If the user reaches the required number of consecutive correct-answer days (`SOLANA_STREAK_DAYS`), the system mints an
+NFT reward and assigns it to the user.
+
+![NFT List](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_list.png)
+
+---
+
+### 🔹 NFT Details
+
+Users who achieve consecutive correct-answer streaks (`SOLANA_STREAK_DAYS`) receive **NFT rewards** minted on Solana.
+These NFTs include metadata for display in wallets like Phantom.
+
+- **Streak requirement:** `SOLANA_STREAK_DAYS` (set in `.env`).
+- **NFT Metadata URI:** [metadata.json](https://raw.githubusercontent.com/di-zed/internal-storage/refs/heads/main/solana-quiz-nft/metadata.json).
+- **Token Standard:** Metaplex Non-Fungible Token (NFT).
+- **Attributes:** can include streak length, quiz type, timestamp, or rarity.
+- **Where NFTs appear:** Wallets like Phantom or Solflare will display the NFT with image, name, and description.
+- **How it works:** Minting is handled off-chain via the Rust service and triggered automatically when a user reaches the streak threshold.
+
+![NFT Details](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_details.png)
 
 ---
 
@@ -475,7 +498,7 @@ docker system prune -f
 ## 🧭 Roadmap
 
 - [x] Integrate on-chain Solana programs for automated token
-- [ ] NFT rewards for quiz streaks (reward users with unique NFTs for consecutive correct answers)
+- [x] NFT rewards for quiz streaks (reward users with unique NFTs for consecutive correct answers)
 - [ ] Migrate to Solana mainnet-beta
 
 ---

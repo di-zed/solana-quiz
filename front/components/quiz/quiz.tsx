@@ -15,6 +15,7 @@ export default function Quiz() {
   const [correctAnswers, setCorrectAnswers] = useState<number>(0);
   const [wrongAnswers, setWrongAnswers] = useState<number>(0);
   const [earnedTokens, setEarnedTokens] = useState<number>(0);
+  const [streakDays, setStreakDays] = useState<number>(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export default function Quiz() {
         setIsQuizCompleted(firstUnansweredIndex === -1);
         setCurrentIndex(startIndex);
         setEarnedTokens(data.data.earnedTokens);
+        setStreakDays(data.data.streakDays);
 
         setCorrectAnswers(data.data.correctAnswers || 0);
         setWrongAnswers(data.data.wrongAnswers || 0);
@@ -82,6 +84,7 @@ export default function Quiz() {
             setIsQuizCompleted(answer.isQuizCompleted);
             setCurrentIndex((prev) => prev + 1);
             setEarnedTokens(answer.earnedTokens);
+            setStreakDays(answer.streakDays);
 
             if (answer.isCorrectAnswer) {
               setCorrectAnswers((prev) => prev + 1);
@@ -100,6 +103,8 @@ export default function Quiz() {
               {earnedTokens > 0 ? (
                 <>
                   You’ve earned {earnedTokens} {earnedTokens > 1 ? 'tokens' : 'token'}, which will be credited to your account soon 💰
+                  <br />
+                  Your streak of days with all correct answers is {streakDays}!
                 </>
               ) : (
                 <>😔 No luck this time! But don’t worry - a new quiz awaits you tomorrow. Give it another shot and win tokens! 💪</>

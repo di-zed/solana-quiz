@@ -29,6 +29,10 @@ export function Summary({ rewardData }: UserRewardData) {
             <TableCell className="font-medium">Earned Tokens</TableCell>
             <TableCell className="text-right">{rewardData.earnedTokens}</TableCell>
           </TableRow>
+          <TableRow>
+            <TableCell className="font-medium">Streaks</TableCell>
+            <TableCell className="text-right">{rewardData.streaks}</TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </>

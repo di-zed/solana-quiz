@@ -10,7 +10,7 @@ use solana_sdk::signature::{Keypair, Signer};
 use std::rc::Rc;
 
 declare_program!(solana_quiz_rewards);
-use crate::utils::solana_util::get_solana_on_chain_streak_days;
+use crate::utils::solana_util::get_solana_streak_days;
 use solana_quiz_rewards::{accounts::QuizUserData, client::accounts, client::args};
 
 pub struct BlockchainApi {
@@ -53,7 +53,7 @@ impl BlockchainApi {
         total_questions: u64,
         correct_answers: u64,
         earned_tokens: u64,
-    ) -> Result<()> {
+    ) -> Result<QuizUserData> {
         // Wrap authority keypair in Rc to share ownership
         let payer_rc = Rc::new(&self.authority_keypair);
 
@@ -69,7 +69,7 @@ impl BlockchainApi {
 
         // Derive the user's PDA for quiz data
         let user_seeds = &[b"user_data_v2", user_pubkey.as_ref()];
-        let (quiz_user_pda, bump) = Pubkey::find_program_address(user_seeds, &program_id);
+        let (quiz_user_pda, _bump) = Pubkey::find_program_address(user_seeds, &program_id);
 
         // Mint and associated token addresses
         let mint_pubkey: Pubkey = self.mint_account.pubkey();
@@ -102,7 +102,7 @@ impl BlockchainApi {
                 total_questions,
                 correct_answers,
                 earned_tokens,
-                streak_days: get_solana_on_chain_streak_days(),
+                streak_days: get_solana_streak_days(),
             })
             .instructions()?;
 
@@ -143,6 +143,6 @@ impl BlockchainApi {
         let quiz_user_data_account: QuizUserData = program.account(quiz_user_pda).await?;
         println!("   Value: {:?}", quiz_user_data_account);
 
-        Ok(())
+        Ok(quiz_user_data_account)
     }
 }

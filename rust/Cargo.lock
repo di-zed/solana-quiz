@@ -4428,6 +4428,8 @@ dependencies = [
  "anchor-spl",
  "anyhow",
  "async-trait",
+ "base64 0.21.7",
+ "bincode",
  "clap 4.5.48",
  "dotenv",
  "mpl-token-metadata",

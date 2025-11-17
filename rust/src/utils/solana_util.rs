@@ -51,6 +51,23 @@ pub fn get_token_meta_uri() -> String {
         .expect("SOLANA_TOKEN_METADATA_URI is not set")
 }
 
+/// Reads the nft name from `SOLANA_NFT_NAME` env variable.
+pub fn get_nft_name() -> String {
+    config_util::get_required_env("SOLANA_NFT_NAME").expect("SOLANA_NFT_NAME is not set")
+}
+
+/// Reads the nft symbol from `SOLANA_NFT_SYMBOL` env variable.
+pub fn get_nft_symbol() -> String {
+    config_util::get_required_env("SOLANA_NFT_SYMBOL").expect("SOLANA_NFT_SYMBOL is not set")
+}
+
+/// Reads the metadata URI (JSON with image and description)
+/// from `SOLANA_NFT_METADATA_URI` env variable.
+pub fn get_nft_meta_uri() -> String {
+    config_util::get_required_env("SOLANA_NFT_METADATA_URI")
+        .expect("SOLANA_NFT_METADATA_URI is not set")
+}
+
 /// Reads the `SOLANA_ON_CHAIN` environment variable and returns whether
 /// token rewards should be sent via on-chain Solana transactions.
 pub fn get_solana_on_chain() -> bool {
@@ -59,11 +76,11 @@ pub fn get_solana_on_chain() -> bool {
     value == "true" || value == "1"
 }
 
-pub fn get_solana_on_chain_streak_days() -> u8 {
-    let value = config_util::get_required_env("SOLANA_ON_CHAIN_STREAK_DAYS")
-        .expect("SOLANA_ON_CHAIN_STREAK_DAYS is not set");
+pub fn get_solana_streak_days() -> u8 {
+    let value =
+        config_util::get_required_env("SOLANA_STREAK_DAYS").expect("SOLANA_STREAK_DAYS is not set");
 
     value
         .parse::<u8>()
-        .expect("SOLANA_ON_CHAIN_STREAK_DAYS must be a valid number")
+        .expect("SOLANA_STREAK_DAYS must be a valid number")
 }

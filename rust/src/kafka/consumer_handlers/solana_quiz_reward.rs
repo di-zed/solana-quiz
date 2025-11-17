@@ -2,11 +2,14 @@ use crate::kafka::consumer_handlers::KafkaConsumerHandler;
 use crate::kafka::producer::KafkaProducer;
 use crate::models::kafka::{SolanaQuizReward, SolanaQuizRewardApplied};
 use crate::services::blockchain_api::BlockchainApi;
+use crate::services::blockchain_api::solana_quiz_rewards::accounts::QuizUserData;
+use crate::services::nft_api::NftApi;
 use crate::services::solana_api::SolanaApi;
-use crate::utils::solana_util::get_solana_on_chain;
+use crate::utils::solana_util::{get_solana_on_chain, get_solana_streak_days};
 use anyhow::Result;
 use async_trait::async_trait;
 use solana_program::pubkey::Pubkey;
+use solana_sdk::signature::Signature;
 use std::sync::Arc;
 use tokio::runtime::Handle;
 use tokio::task;
@@ -37,10 +40,14 @@ impl KafkaConsumerHandler for SolanaQuizRewardHandler {
             Ok(reward) => {
                 info!("Received Quiz Reward: {:?}", reward);
 
+                let streak_days: u8;
+
                 if get_solana_on_chain() {
-                    self.send_tokens_on_chain(&reward).await?;
+                    let quiz_user_data_account = self.send_tokens_on_chain(&reward).await?;
+                    streak_days = quiz_user_data_account.streak;
                 } else {
                     self.send_tokens_off_chain(&reward).await?;
+                    streak_days = reward.streak_days;
                 }
 
                 let confirmation = SolanaQuizRewardApplied {
@@ -56,6 +63,10 @@ impl KafkaConsumerHandler for SolanaQuizRewardHandler {
                         &payload,
                     )
                     .await?;
+
+                if streak_days == get_solana_streak_days() {
+                    self.send_nft_rewards(&reward).await?;
+                }
             }
             Err(e) => error!("Failed to deserialize Quiz Reward: {}", e),
         }
@@ -63,7 +74,7 @@ impl KafkaConsumerHandler for SolanaQuizRewardHandler {
         Ok(())
     }
 
-    async fn send_tokens_on_chain(&self, reward: &SolanaQuizReward) -> Result<()> {
+    async fn send_tokens_on_chain(&self, reward: &SolanaQuizReward) -> Result<QuizUserData> {
         let user_wallet = reward.user_wallet.parse::<Pubkey>()?;
 
         let total_questions = reward.total_questions;
@@ -75,7 +86,7 @@ impl KafkaConsumerHandler for SolanaQuizRewardHandler {
 
         let handle = Handle::current();
 
-        task::spawn_blocking(move || {
+        let quiz_user_data_account: QuizUserData = task::spawn_blocking(move || {
             handle.block_on(async {
                 let blockchain_api = BlockchainApi::new();
                 blockchain_api
@@ -92,15 +103,23 @@ impl KafkaConsumerHandler for SolanaQuizRewardHandler {
 
         info!("On-chain transaction completed in {:.2?}", start.elapsed());
 
-        Ok(())
+        Ok(quiz_user_data_account)
     }
 
-    async fn send_tokens_off_chain(&self, reward: &SolanaQuizReward) -> Result<()> {
+    async fn send_tokens_off_chain(&self, reward: &SolanaQuizReward) -> Result<Signature> {
         let signature = SolanaApi::new()
             .send_tokens(&reward.user_wallet.parse::<Pubkey>()?, reward.earned_tokens)
             .await?;
 
         info!("Transaction Signature: {}", signature);
+
+        Ok(signature)
+    }
+
+    async fn send_nft_rewards(&self, reward: &SolanaQuizReward) -> Result<()> {
+        NftApi::new()
+            .mint_nft_to_recipient(&reward.user_wallet.parse::<Pubkey>()?)
+            .await?;
 
         Ok(())
     }

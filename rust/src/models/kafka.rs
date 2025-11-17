@@ -9,6 +9,7 @@ pub struct SolanaQuizReward {
     pub total_questions: u64,
     pub correct_answers: u64,
     pub earned_tokens: u64,
+    pub streak_days: u8,
 }
 
 /// Represents a successfully applied Solana quiz reward.
