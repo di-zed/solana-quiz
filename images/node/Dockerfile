@@ -1,4 +1,5 @@
 FROM node:24.4.0
+RUN npm i -g @nestjs/cli
 
 WORKDIR /home/app
 
