@@ -315,6 +315,7 @@ cargo build --release
 ```bash
 docker-compose exec node /bin/bash
 npx prisma migrate deploy
+npx prisma generate
 ```
 
 | Service    | URL                   |
