@@ -14,9 +14,7 @@ export class AuthService {
    *
    * @param prisma - PrismaService instance used to interact with the database
    */
-  public constructor(
-    private prisma: PrismaService
-  ) {}
+  public constructor(private prisma: PrismaService) {}
 
   /**
    * Authenticate a user by wallet address.
