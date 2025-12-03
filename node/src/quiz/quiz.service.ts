@@ -5,6 +5,7 @@ import {
   QuizQuestionOption,
   QuizReward,
 } from '../../generated/prisma/client';
+import { QuizQuestionOptionCreateWithoutQuestionInput } from '../../generated/prisma/models/QuizQuestionOption';
 import { getRequiredEnv } from '../common/utils/config.utils';
 import { OpenaiService } from '../openai/openai.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -17,7 +18,7 @@ import { UserReward } from './types/user-reward.type';
 
 @Injectable()
 export class QuizService {
-  constructor(
+  public constructor(
     private prisma: PrismaService,
     private openAi: OpenaiService,
   ) {}
@@ -111,7 +112,8 @@ export class QuizService {
       const aiQuestions = await this.getQuestionsFromAi();
 
       for (const aiQuestion of aiQuestions) {
-        const quizQuestionOptions = [];
+        const quizQuestionOptions: QuizQuestionOptionCreateWithoutQuestionInput[] =
+          [];
 
         for (const aiQuestionOption of aiQuestion.options) {
           quizQuestionOptions.push({
@@ -330,7 +332,7 @@ export class QuizService {
    * @returns UserQuizQuestion
    */
   public toUserQuestion(
-    quizQuestion: QuizQuestion & { options: QuizQuestionOption[] },
+    quizQuestion: QuizQuestion & { options?: QuizQuestionOption[] },
     quizAnswer: QuizAnswer | null,
   ): UserQuizQuestion {
     const options: UserQuizQuestionOption[] =

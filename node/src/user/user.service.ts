@@ -1,27 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { CurrentUser } from './types/current-user.type';
+import {CurrentUserDto} from "./dto/current-user.dto";
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  /**
+   * User Service Constructor.
+   *
+   * @param prisma - Prisma service for database access
+   */
+  public constructor(private prisma: PrismaService) {}
 
   /**
-   * Get User by ID.
+   * Get a user by its unique ID.
    *
-   * @param userId
-   * @returns Promise<User | null>
+   * @param userId - ID of the user
+   * @returns Promise<User | null> - Returns the user or null if not found
    */
   public async getUserById(userId: number): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { id: userId } });
   }
 
   /**
-   * Get User by Wallet Address.
+   * Get a user by its wallet address.
    *
-   * @param walletAddress
-   * @returns Promise<User | null>
+   * @param walletAddress - Wallet address of the user
+   * @returns Promise<User | null> - Returns the user or null if not found
    */
   public async getUserByWalletAddress(
     walletAddress: string,
@@ -30,20 +35,26 @@ export class UserService {
   }
 
   /**
-   * Prepare Current User by ID.
+   * Get the current user by ID.
+   * Converts the user to a simplified CurrentUserDto object.
    *
-   * @param userId
-   * @returns Promise<CurrentUser | null>
+   * @param userId - ID of the user
+   * @returns Promise<CurrentUserDto | null> - Returns the current user or null if not found
    */
-  public async prepareCurrentUserById(
+  public async getCurrentUserById(
     userId: number,
-  ): Promise<CurrentUser | null> {
+  ): Promise<CurrentUserDto | null> {
     const user = await this.getUserById(userId);
+    return user ? this.convertToCurrentUser(user) : null;
+  }
 
-    if (!user) {
-      return null;
-    }
-
-    return { id: user.id, wallet: user.walletAddress };
+  /**
+   * Convert a User entity to a simplified CurrentUserDto type.
+   *
+   * @param user - User entity from the database
+   * @returns CurrentUserDto - Simplified user object with only essential fields
+   */
+  public convertToCurrentUser(user: User): CurrentUserDto {
+    return new CurrentUserDto({ id: user.id, wallet: user.walletAddress });
   }
 }
