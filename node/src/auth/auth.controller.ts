@@ -2,19 +2,26 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Res,
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { Public } from '../common/decorators/public.decorator';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { LogoutResponseDto } from './dto/logout-response.dto';
 import { NonceResponseDto } from './dto/nonce-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { NonceService } from './nonce.service';
 import { TokenService } from './token.service';
 import { WalletService } from './wallet.service';
@@ -30,6 +37,7 @@ export class AuthController {
     private tokenService: TokenService,
   ) {}
 
+  @Public()
   @Get('nonce')
   @ApiOperation({ summary: 'Generate a nonce for login' })
   @ApiResponse({
@@ -41,7 +49,9 @@ export class AuthController {
     return { nonce: this.nonceService.generate() };
   }
 
+  @Public()
   @Post('login')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Login using wallet address and signature' })
   @ApiResponse({
     status: 200,
@@ -64,7 +74,9 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Logout the current user' })
+  @ApiCookieAuth('auth_token')
   @ApiResponse({
     status: 200,
     description: 'Successfully logged out',
@@ -77,8 +89,13 @@ export class AuthController {
     return {};
   }
 
+  @Public()
   @Post('refresh')
-  @ApiOperation({ summary: 'Refresh access and refresh tokens using a valid refresh token' })
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Refresh access and refresh tokens using a valid refresh token',
+  })
+  @ApiCookieAuth('refresh_token')
   @ApiResponse({
     status: 200,
     description: 'Tokens successfully refreshed. Returns updated user data.',
@@ -96,7 +113,9 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
-    const refreshToken = req.cookies['refresh_token'];
+    const cookies = req.cookies as Record<string, string | undefined>;
+    const refreshToken: string | undefined = cookies.refresh_token;
+
     if (!refreshToken) {
       throw new UnauthorizedException('Invalid Refresh Token');
     }
@@ -104,7 +123,8 @@ export class AuthController {
     let userId = 0;
 
     try {
-      const refreshPayload = await this.tokenService.verifyRefreshToken(refreshToken);
+      const refreshPayload =
+        await this.tokenService.verifyRefreshToken(refreshToken);
       userId = refreshPayload.userId;
 
       await this.updateTokens(res, userId);
@@ -120,6 +140,12 @@ export class AuthController {
     return { user: currentUser };
   }
 
+  /**
+   * Generates new auth and refresh tokens and writes them to cookies.
+   *
+   * @param res Express response object used to set cookies.
+   * @param userId ID of the user for whom tokens are generated.
+   */
   private async updateTokens(res: Response, userId: number): Promise<void> {
     const [authToken, refreshToken] = await Promise.all([
       this.tokenService.generateAuthToken({ userId }, '1h'),
@@ -143,6 +169,11 @@ export class AuthController {
     });
   }
 
+  /**
+   * Removes auth and refresh cookies from the client.
+   *
+   * @param res Express response object used to clear cookies.
+   */
   private removeTokens(res: Response): void {
     const isSecure = this.tokenService.isSecure();
 
