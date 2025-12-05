@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator';
 import { UserService } from '../user/user.service';
 import { TokenService } from './token.service';
@@ -40,7 +41,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
 
     const cookies = request.cookies as Record<string, string | undefined>;
     const authToken: string | undefined = cookies.auth_token;

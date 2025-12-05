@@ -26,8 +26,8 @@ import { NonceService } from './nonce.service';
 import { TokenService } from './token.service';
 import { WalletService } from './wallet.service';
 
-@ApiTags('auth')
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   public constructor(
     private authService: AuthService,
