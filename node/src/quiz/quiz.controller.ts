@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import {
+  ApiBody,
   ApiCookieAuth,
   ApiTags,
   ApiOperation,
@@ -7,8 +8,13 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
+import { AnswerService } from './answer.service';
+import { AnswerBodyDto } from './dto/answer-body.dto';
+import { AnswerResponseDto } from './dto/answer-response.dto';
 import { QuestionsResponseDto } from './dto/questions-response.dto';
 import { RewardsResponseDto } from './dto/rewards-response.dto';
+import { QuestionService } from './question.service';
+import { QuizAnswerService } from './quiz-answer.service';
 import { QuizService } from './quiz.service';
 import { RewardService } from './reward.service';
 
@@ -18,7 +24,10 @@ import { RewardService } from './reward.service';
 export class QuizController {
   public constructor(
     private quizService: QuizService,
+    private questionService: QuestionService,
+    private answerService: AnswerService,
     private rewardService: RewardService,
+    private quizAnswerService: QuizAnswerService,
   ) {}
 
   @Get('questions')
@@ -62,5 +71,30 @@ export class QuizController {
     return { rewardData };
   }
 
-  public answer() {}
+  @Post('answer')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Submit an answer to a quiz question' })
+  @ApiBody({
+    description: 'User answer payload',
+    type: AnswerBodyDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Answer processed successfully',
+    type: AnswerResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request: invalid question or option',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized: invalid or missing auth token',
+  })
+  public async answer(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() answer: AnswerBodyDto,
+  ): Promise<AnswerResponseDto> {
+    return this.quizAnswerService.processUserAnswer(user, answer);
+  }
 }

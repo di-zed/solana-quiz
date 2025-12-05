@@ -7,6 +7,7 @@ import { QuestionService } from './question.service';
 import { RewardService } from './reward.service';
 import { AnswerService } from './answer.service';
 import { QuizTasksService } from './quiz-tasks.service';
+import { QuizAnswerService } from './quiz-answer.service';
 
 @Module({
   imports: [PrismaModule, OpenaiModule],
@@ -16,6 +17,7 @@ import { QuizTasksService } from './quiz-tasks.service';
     RewardService,
     AnswerService,
     QuizTasksService,
+    QuizAnswerService,
   ],
   controllers: [QuizController],
 })
