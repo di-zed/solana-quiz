@@ -63,9 +63,6 @@ async function bootstrap() {
     .setTitle('Solana Quiz API')
     .setDescription('API documentation for the Solana Quiz project')
     .setVersion('1.0')
-    .addTag('auth')
-    .addTag('user')
-    .addTag('quiz')
     .addCookieAuth('auth_token')
     .build();
 

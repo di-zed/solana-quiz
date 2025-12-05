@@ -55,6 +55,6 @@ export class UserService {
    * @returns CurrentUserDto - Simplified user object with only essential fields
    */
   public convertToCurrentUser(user: User): CurrentUserDto {
-    return new CurrentUserDto({ id: user.id, wallet: user.walletAddress });
+    return { id: user.id, wallet: user.walletAddress };
   }
 }
