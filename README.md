@@ -32,7 +32,7 @@
 | Service               | Technologies                         | Description                                                                    |
 |-----------------------|--------------------------------------|--------------------------------------------------------------------------------|
 | **Frontend**          | Next.js, React, TailwindCSS          | User interface and wallet interaction                                          |
-| **Backend (Node.js)** | Express, Prisma, KafkaJS, OpenAI API | REST API, quiz logic, question generation, authentication, Kafka communication |
+| **Backend (Node.js)** | NestJS, Prisma, KafkaJS, OpenAI API | REST API, quiz logic, question generation, authentication, Kafka communication |
 | **Rust Service**      | Rust, Solana SDK, rdkafka            | Token minting and Solana transactions                                          |
 
 All services are orchestrated via **Docker Compose** and communicate through **Kafka**.
@@ -42,7 +42,7 @@ All services are orchestrated via **Docker Compose** and communicate through **K
 ## ⚙️ Tech Stack
 
 - **Frontend:** Next.js 15, React 19, TailwindCSS 4
-- **Backend:** Node.js, Express, Prisma ORM, KafkaJS, OpenAI API
+- **Backend:** Node.js, NestJS, Prisma ORM, KafkaJS, OpenAI API
 - **Blockchain Layer:** Solana SDK, SPL Token, Metaplex Metadata
 - **Worker:** Rust + Tokio + rdkafka
 - **Database:** PostgreSQL
@@ -58,13 +58,13 @@ All services are orchestrated via **Docker Compose** and communicate through **K
 Currently, only the Phantom Wallet is integrated for user authentication. However,
 the codebase allows for easy extension to support other Solana-compatible wallets in the future.
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main.png" alt="Main" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main.png" alt="Main"/>
 
 Users connect their **Phantom Wallet** through the frontend.  
 The Node.js service generates a signable message; the wallet signature confirms ownership of the address.  
 Once verified, the backend creates or fetches a user in the database.
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main_logged_in.png" alt="Main Logged In" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main_logged_in.png" alt="Main Logged In" width="auto" height="500"/>
 
 ### 2️⃣ Taking the Quiz
 
@@ -75,11 +75,11 @@ The frontend interacts with the Node.js service via REST API to:
 - Submit answers
 - Get results
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz.png" alt="Quiz" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz.png" alt="Quiz" width="auto" height="500"/>
 
 The Node.js service calculates the score and determines the reward.
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz_completed.png" alt="Quiz Completed" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz_completed.png" alt="Quiz Completed" width="auto" height="500"/>
 
 ### 3️⃣ Sending Reward Event to Kafka
 
@@ -187,7 +187,7 @@ cp ./programs/solana_quiz_rewards/target/idl/solana_quiz_rewards.json ./idls/
 
 ### Reward Confirmation
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/wallet.png" alt="Wallet" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/wallet.png" alt="Wallet" width="auto" height="500"/>
 
 After a successful transaction, Rust publishes confirmation to:
 
@@ -209,14 +209,14 @@ Payload example:
 Node.js listens to `solana-quiz-reward-applied` and updates the database upon confirmation, marking the reward as
 distributed.
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/statistics.png" alt="Statistics" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/statistics.png" alt="Statistics" width="auto" height="500"/>
 
 ### 6️⃣ NFT Reward for Streaks
 
 If the user reaches the required number of consecutive correct-answer days (`SOLANA_STREAK_DAYS`), the system mints an
 NFT reward and assigns it to the user.
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_list.png" alt="NFT List" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_list.png" alt="NFT List" width="auto" height="500"/>
 
 ---
 
@@ -232,7 +232,7 @@ These NFTs include metadata for display in wallets like Phantom.
 - **Where NFTs appear:** Wallets like Phantom or Solflare will display the NFT with image, name, and description.
 - **How it works:** Minting is handled off-chain via the Rust service and triggered automatically when a user reaches the streak threshold.
 
-<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_details.png" alt="NFT Details" style="max-height: 500px"/>
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_details.png" alt="NFT Details" width="auto" height="500"/>
 
 ---
 
@@ -263,7 +263,7 @@ OPEN_AI_LANGUAGE=English
 ```
 .
 ├── front/                  # Next.js frontend
-├── node/                   # Node.js backend (Express + Prisma + Kafka)
+├── node/                   # Node.js backend (NestJS + Prisma + Kafka)
 ├── rust/                   # Rust microservice (Solana integration)
 ├── docker-compose.yml
 ├── .env.example
