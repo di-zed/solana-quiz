@@ -1,10 +1,10 @@
 {
   "name": "solana-quiz",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "version": "1.3.0",
+  "description": "The Solana Quiz application",
+  "author": "DiZed Team",
+  "private": false,
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -19,6 +19,27 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/di-zed/solana-quiz.git"
+  },
+  "bugs": {
+    "url": "https://github.com/di-zed/solana-quiz/issues"
+  },
+  "homepage": "https://github.com/di-zed/solana-quiz#readme",
+  "keywords": [
+    "dized",
+    "solana",
+    "web3",
+    "token",
+    "blockchain",
+    "quiz",
+    "rust",
+    "node",
+    "react",
+    "postgres",
+    "kafka"
+  ],
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

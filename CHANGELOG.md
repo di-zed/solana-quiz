@@ -1,5 +1,15 @@
 # CHANGE LOG
 
+## [1.3.0] - 2025-12-10
+
+### Changed
+
+- Node.js backend migrated to **NestJS** for improved structure and scalability.
+
+### Added
+
+- Added **Swagger UI** for interactive API documentation and testing.
+
 ## [1.2.0] - 2025-11-17
 
 ### Added

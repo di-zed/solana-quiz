@@ -58,13 +58,13 @@ All services are orchestrated via **Docker Compose** and communicate through **K
 Currently, only the Phantom Wallet is integrated for user authentication. However,
 the codebase allows for easy extension to support other Solana-compatible wallets in the future.
 
-![Main](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main.png" alt="Main" style="max-height: 500px"/>
 
 Users connect their **Phantom Wallet** through the frontend.  
 The Node.js service generates a signable message; the wallet signature confirms ownership of the address.  
 Once verified, the backend creates or fetches a user in the database.
 
-![Main Logged In](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main_logged_in.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/main_logged_in.png" alt="Main Logged In" style="max-height: 500px"/>
 
 ### 2️⃣ Taking the Quiz
 
@@ -75,17 +75,17 @@ The frontend interacts with the Node.js service via REST API to:
 - Submit answers
 - Get results
 
-![Quiz](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz.png" alt="Quiz" style="max-height: 500px"/>
 
 The Node.js service calculates the score and determines the reward.
 
-![Quiz Completed](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz_completed.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/quiz_completed.png" alt="Quiz Completed" style="max-height: 500px"/>
 
 ### 3️⃣ Sending Reward Event to Kafka
 
 Once the quiz is completed, Node.js publishes an event to Kafka topic:
 
-```bash
+```shell
 Topic: solana-quiz-rewards
 ```
 
@@ -130,7 +130,7 @@ The **Anchor program** (`solana_quiz_rewards`) manages the reward logic on **Sol
 
 #### 1. Configure Solana CLI
 
-```bash
+```shell
 cd /home/app/programs/solana_quiz_rewards
 solana config set --url https://api.devnet.solana.com
 solana config set --keypair ./../../secret/authority.json
@@ -138,7 +138,7 @@ solana config get
 ```
 
 > Optional:
-> ```bash
+> ```shell
 > export ANCHOR_WALLET=./../../secret/authority.json
 > ```
 
@@ -146,7 +146,7 @@ solana config get
 
 If deploying your **own instance**, generate a new keypair and update program IDs:
 
-```bash
+```shell
 solana-keygen new --outfile ./target/deploy/solana_quiz_rewards-keypair.json
 solana-keygen pubkey ./target/deploy/solana_quiz_rewards-keypair.json
 ```
@@ -171,14 +171,14 @@ solana_quiz_rewards = "YOUR_NEW_PROGRAM_ID_HERE"
 
 #### 3. Build and deploy the program (if deploying your own instance)
 
-```bash
+```shell
 anchor build
 anchor deploy
 ```
 
 #### 4. Copy IDL for backend/frontend integration
 
-```bash
+```shell
 cd /home/app
 cp ./programs/solana_quiz_rewards/target/idl/solana_quiz_rewards.json ./idls/
 ```
@@ -187,11 +187,11 @@ cp ./programs/solana_quiz_rewards/target/idl/solana_quiz_rewards.json ./idls/
 
 ### Reward Confirmation
 
-![Wallet](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/wallet.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/wallet.png" alt="Wallet" style="max-height: 500px"/>
 
 After a successful transaction, Rust publishes confirmation to:
 
-```bash
+```shell
 Topic: solana-quiz-reward-applied
 ```
 
@@ -209,14 +209,14 @@ Payload example:
 Node.js listens to `solana-quiz-reward-applied` and updates the database upon confirmation, marking the reward as
 distributed.
 
-![Statistics](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/statistics.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/statistics.png" alt="Statistics" style="max-height: 500px"/>
 
 ### 6️⃣ NFT Reward for Streaks
 
 If the user reaches the required number of consecutive correct-answer days (`SOLANA_STREAK_DAYS`), the system mints an
 NFT reward and assigns it to the user.
 
-![NFT List](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_list.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_list.png" alt="NFT List" style="max-height: 500px"/>
 
 ---
 
@@ -232,7 +232,7 @@ These NFTs include metadata for display in wallets like Phantom.
 - **Where NFTs appear:** Wallets like Phantom or Solflare will display the NFT with image, name, and description.
 - **How it works:** Minting is handled off-chain via the Rust service and triggered automatically when a user reaches the streak threshold.
 
-![NFT Details](https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_details.png)
+<img src="https://raw.githubusercontent.com/di-zed/internal-storage/main/readme/images/solana-quiz/nft_details.png" alt="NFT Details" style="max-height: 500px"/>
 
 ---
 
@@ -276,7 +276,7 @@ OPEN_AI_LANGUAGE=English
 
 ### 1️⃣ Clone and Prepare
 
-```bash
+```shell
 git clone https://github.com/di-zed/solana-quiz.git
 cd solana-quiz
 
@@ -294,7 +294,7 @@ cp volumes/root/bash_history/rust.sample volumes/root/bash_history/rust
 
 #### Development
 
-```bash
+```shell
 cp docker-compose.local.sample.yml docker-compose.local.yml
 make docker-local-restart
 docker-compose exec rust /bin/bash
@@ -303,7 +303,7 @@ cargo run
 
 #### Production
 
-```bash
+```shell
 docker-compose up -d
 docker-compose exec rust /bin/bash
 cargo build --release
@@ -312,7 +312,7 @@ cargo build --release
 
 #### Database (Development & Production)
 
-```bash
+```shell
 docker-compose exec node /bin/bash
 npx prisma migrate deploy
 npx prisma generate
@@ -327,11 +327,48 @@ npx prisma generate
 
 ---
 
+## 📖 API Documentation (Swagger)
+
+This document explains how to access and use the Swagger UI for the Solana Quiz backend API.
+
+### Access Swagger UI
+
+Once your backend service is running, Swagger UI is available at:
+
+```shell
+<NODE_PUBLIC_URL>/api # http://localhost:3000/api
+```
+
+### Testing Endpoints
+
+Swagger allows you to test API endpoints directly in the browser:
+
+1. Open Swagger UI.
+2. Expand the endpoint you want to test.
+3. Fill in request parameters or body data.
+4. Click **Execute** to send the request.
+5. Observe the response in the UI.
+
+### Authentication
+
+Some endpoints require a valid authentication token via cookies.
+
+Cookie Name: `auth_token`
+
+- **Using Swagger UI:** Click the **Authorize** button and enter your token to access protected endpoints.
+- **Alternative:** You can log in through the frontend (the cookie will be set automatically) or reuse an existing `auth_token` cookie from your browser if already logged in.
+
+### References
+
+* Swagger UI: [https://swagger.io/tools/swagger-ui/](https://swagger.io/tools/swagger-ui/)
+
+---
+
 ## 🔑 Solana Setup
 
 ### Generate Keys
 
-```bash
+```shell
 # 🧱 Enter the Rust service container
 docker-compose exec rust /bin/bash
 
@@ -341,14 +378,14 @@ solana-keygen new --outfile ./secret/mint.json
 
 ### Get Public Keys
 
-```bash
+```shell
 solana-keygen pubkey ./secret/authority.json
 solana-keygen pubkey ./secret/mint.json
 ```
 
 ### Airdrop SOL
 
-```bash
+```shell
 solana airdrop 5 $(solana-keygen pubkey ./secret/authority.json) --url https://api.devnet.solana.com
 ```
 
@@ -368,7 +405,7 @@ file: [metadata.json](https://raw.githubusercontent.com/di-zed/internal-storage/
 > ⚠️ Before running these commands, make sure your .env file is properly configured.  
 > It must include wallet keypair paths, network, and metadata settings as shown below.
 
-```bash
+```shell
 # 🏗 Build Rust service binary
 # This will produce ./target/release/solana
 docker-compose exec rust /bin/bash
@@ -414,7 +451,7 @@ cargo build --release
 
 ## 🧾 Solana Direct Checks
 
-```bash
+```shell
 solana account <WALLET_ADDRESS> --url https://api.devnet.solana.com
 solana balance <WALLET_ADDRESS> --url https://api.devnet.solana.com
 solana logs --url https://api.devnet.solana.com
@@ -429,7 +466,7 @@ solana logs --url https://api.devnet.solana.com
 > These commands are only needed if you are developing or updating the database schema.
 > For normal project usage, you can skip migration commands.
 
-```bash
+```shell
 # Enter the Node.js container
 docker-compose exec node /bin/bash
 
@@ -439,7 +476,7 @@ npx prisma migrate dev --name <migration_name>
 
 ### Production Deployment
 
-```bash
+```shell
 # Apply already created migrations in production
 npx prisma migrate deploy
 ```
@@ -455,7 +492,7 @@ npx prisma migrate deploy
 
 ### Get CLUSTER_ID
 
-```bash
+```shell
 docker-compose run kafka1 /bin/bash
 kafka-storage random-uuid
 ```
@@ -475,7 +512,7 @@ kafka-storage random-uuid
 
 ## 🧹 Cleanup
 
-```bash
+```shell
 docker-compose down -v
 docker system prune -f
 ```

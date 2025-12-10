@@ -1,6 +1,6 @@
 {
   "name": "solana-quiz",
-  "version": "0.1.0",
+  "version": "1.3.0",
   "description": "The Solana Quiz application",
   "private": true,
   "scripts": {
