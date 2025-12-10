@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { KafkaModule } from '../kafka/kafka.module';
 import { OpenaiModule } from '../openai/openai.module';
 import { PrismaModule } from '../prisma/prisma.module';
+import { RewardConsumerController } from './consumers/reward-consumer.controller';
 import { QuizService } from './quiz.service';
 import { QuizController } from './quiz.controller';
 import { QuestionService } from './question.service';
@@ -10,7 +12,7 @@ import { QuizTasksService } from './quiz-tasks.service';
 import { QuizAnswerService } from './quiz-answer.service';
 
 @Module({
-  imports: [PrismaModule, OpenaiModule],
+  imports: [PrismaModule, OpenaiModule, KafkaModule],
   providers: [
     QuizService,
     QuestionService,
@@ -19,6 +21,6 @@ import { QuizAnswerService } from './quiz-answer.service';
     QuizTasksService,
     QuizAnswerService,
   ],
-  controllers: [QuizController],
+  controllers: [QuizController, RewardConsumerController],
 })
 export class QuizModule {}

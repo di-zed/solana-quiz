@@ -1,4 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { KafkaProducerService } from '../kafka/kafka-producer.service';
+import { REWARD_TOPICS } from '../kafka/topics/reward-topics';
+import { SolanaQuizReward } from './types/solana-quiz-reward.type';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
 import { AnswerService } from './answer.service';
 import { AnswerBodyDto } from './dto/answer-body.dto';
@@ -14,6 +17,7 @@ export class QuizAnswerService {
     private questionService: QuestionService,
     private answerService: AnswerService,
     private rewardService: RewardService,
+    private kafkaProducerService: KafkaProducerService,
   ) {}
 
   /**
@@ -85,7 +89,19 @@ export class QuizAnswerService {
         earnedTokens = quizReward.earnedTokens;
         streakDays = quizReward.streakDays;
 
-        // TODO: KAFKA event dispatching
+        this.kafkaProducerService.emit(
+          REWARD_TOPICS.REWARD_GRANTED,
+          <SolanaQuizReward>{
+            user_id: user.id,
+            user_wallet: user.wallet,
+            quiz_id: quizId,
+            total_questions: quizReward.totalQuestions,
+            correct_answers: quizReward.correctAnswers,
+            earned_tokens: quizReward.earnedTokens,
+            streak_days: quizReward.streakDays,
+          },
+          `user_${user.id}`,
+        );
       }
     }
 

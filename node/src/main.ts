@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestApplicationOptions } from '@nestjs/common/interfaces/nest-application-options.interface';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
@@ -8,6 +9,7 @@ import * as fs from 'fs';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { getRequiredEnv } from './common/utils/config.utils';
+import { getKafkaConsumerConfig } from './kafka/kafka.config';
 
 async function bootstrap() {
   const options: NestApplicationOptions = {};
@@ -68,6 +70,12 @@ async function bootstrap() {
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
+
+  // Attach Kafka as a microservice using the shared config.
+  app.connectMicroservice(getKafkaConsumerConfig(app.get(ConfigService)));
+
+  // Start Kafka consumers and begin listening to topics.
+  await app.startAllMicroservices();
 
   // Start server
   await app.listen(getRequiredEnv('NODE_CONTAINER_PORT'));

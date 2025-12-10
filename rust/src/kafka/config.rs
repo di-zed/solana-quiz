@@ -27,7 +27,7 @@ pub fn create_kafka_consumer_config() -> ClientConfig {
 
     config
         .set("bootstrap.servers", format!("kafka1:{}", kafka_port))
-        .set("group.id", "solana_quiz_group")
+        .set("group.id", "solana-quiz-rust")
         .set("enable.auto.commit", "false");
 
     config

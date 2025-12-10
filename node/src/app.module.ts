@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { QuizModule } from './quiz/quiz.module';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { QuizModule } from './quiz/quiz.module';
     ScheduleModule.forRoot(),
     AuthModule,
     QuizModule,
+    KafkaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
