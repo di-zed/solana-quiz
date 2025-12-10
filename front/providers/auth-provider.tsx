@@ -114,13 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
 
-      const { status } = await resLogin.json();
-
-      if (status === 'success') {
-        await setCurrentUser();
-      } else {
-        setUser(null);
-      }
+      await setCurrentUser();
     } catch {
       setUser(null);
     }
@@ -142,7 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * Get Current User.
    */
   const getCurrentUser = async (): Promise<CurrentUser | null> => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_NODE_URL}/v1/auth/me`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_NODE_URL}/v1/user/me`, {
       credentials: 'include',
     });
 
@@ -150,13 +144,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
 
-    const { status, data } = await res.json();
-
-    if (status !== 'success' || !data || !data.user) {
-      return null;
-    }
-
-    return data.user;
+    const { user } = await res.json();
+    return user || null;
   };
 
   /**
@@ -172,13 +161,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
 
-    const { status, data } = await res.json();
-
-    if (status !== 'success' || !data || !data.user) {
-      return null;
-    }
-
-    return data.user;
+    const { user } = await res.json();
+    return user || null;
   };
 
   useEffect(() => {

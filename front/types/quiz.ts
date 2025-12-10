@@ -27,6 +27,7 @@ export type UserQuizData = {
   wrongAnswers: number;
   questions: UserQuizQuestion[];
   earnedTokens: number;
+  streakDays: number;
 };
 
 /**

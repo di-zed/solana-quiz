@@ -31,24 +31,24 @@ export default function Quiz() {
           throw new Error(`Failed to fetch: ${res.status}`);
         }
 
-        const data = await res.json();
+        const { quizData } = await res.json();
 
-        if (data.status !== 'success' || !data.data) {
+        if (!quizData) {
           throw new Error(`Failed to fetch data`);
         }
 
-        const firstUnansweredIndex = data.data.questions.findIndex((q: UserQuizQuestion) => !q.isAnswered);
-        const startIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : data.data.questions.length - 1;
+        const firstUnansweredIndex = quizData.questions.findIndex((q: UserQuizQuestion) => !q.isAnswered);
+        const startIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : quizData.questions.length - 1;
 
-        setQuizData(data.data);
+        setQuizData(quizData);
 
         setIsQuizCompleted(firstUnansweredIndex === -1);
         setCurrentIndex(startIndex);
-        setEarnedTokens(data.data.earnedTokens);
-        setStreakDays(data.data.streakDays);
+        setEarnedTokens(quizData.earnedTokens);
+        setStreakDays(quizData.streakDays);
 
-        setCorrectAnswers(data.data.correctAnswers || 0);
-        setWrongAnswers(data.data.wrongAnswers || 0);
+        setCorrectAnswers(quizData.correctAnswers || 0);
+        setWrongAnswers(quizData.wrongAnswers || 0);
       } catch (err) {
         setError(err.message);
       } finally {

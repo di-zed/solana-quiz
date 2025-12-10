@@ -51,12 +51,11 @@ export function QuizForm({ quizData, quizQuestion, currentIndex, onAnswered }: Q
         }),
       });
 
-      const result = await res.json();
-      const resData = result.data as UserQuizQuestionAnswer;
-
-      if (!res.ok || result.status !== 'success') {
-        throw new Error(result.message || 'Error sending answer');
+      if (!res.ok) {
+        throw new Error('Error sending answer');
       }
+
+      const resData: UserQuizQuestionAnswer = await res.json();
 
       setAnswer(resData);
 

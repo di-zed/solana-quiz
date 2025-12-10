@@ -23,13 +23,13 @@ export default function Statistics() {
           throw new Error(`Failed to fetch: ${res.status}`);
         }
 
-        const data = await res.json();
+        const { rewardData } = await res.json();
 
-        if (data.status !== 'success' || !data.data) {
+        if (!rewardData) {
           throw new Error(`Failed to fetch data`);
         }
 
-        setRewardData(data.data);
+        setRewardData(rewardData);
       } catch (err) {
         setError(err.message);
       } finally {
