@@ -1,4 +1,11 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiCookieAuth,
@@ -7,6 +14,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ExecutionTimeInterceptor } from '../common/interceptors/execution-time.interceptor';
 import { CurrentUserDto } from '../user/dto/current-user.dto';
 import { AnswerService } from './answer.service';
 import { AnswerBodyDto } from './dto/answer-body.dto';
@@ -41,6 +49,7 @@ export class QuizController {
     status: 401,
     description: 'Unauthorized: invalid or missing auth token',
   })
+  @UseInterceptors(new ExecutionTimeInterceptor())
   public async questions(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<QuestionsResponseDto> {
@@ -63,6 +72,7 @@ export class QuizController {
     status: 401,
     description: 'Unauthorized: invalid or missing auth token',
   })
+  @UseInterceptors(new ExecutionTimeInterceptor())
   public async rewards(
     @CurrentUser() user: CurrentUserDto,
   ): Promise<RewardsResponseDto> {
@@ -91,6 +101,7 @@ export class QuizController {
     status: 401,
     description: 'Unauthorized: invalid or missing auth token',
   })
+  @UseInterceptors(new ExecutionTimeInterceptor())
   public async answer(
     @CurrentUser() user: CurrentUserDto,
     @Body() answer: AnswerBodyDto,

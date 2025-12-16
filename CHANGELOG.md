@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## [1.3.1] - 2025-12-16
+
+### Added
+
+- **Middleware:** Added `RequestIdMiddleware` to generate unique request IDs for all incoming HTTP requests.
+- **Interceptor:** Added `ExecutionTimeInterceptor` to log slow requests (taking more than 3 seconds).
+
 ## [1.3.0] - 2025-12-10
 
 ### Changed
