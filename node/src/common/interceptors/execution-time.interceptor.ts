@@ -14,10 +14,7 @@ export class ExecutionTimeInterceptor implements NestInterceptor {
   private readonly logger = new Logger(ExecutionTimeInterceptor.name);
   private readonly threshold = 3000; // 3 seconds
 
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
 
     return next.handle().pipe(

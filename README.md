@@ -39,6 +39,42 @@ All services are orchestrated via **Docker Compose** and communicate through **K
 
 ---
 
+## 📊 Monitoring & Metrics
+
+This project now includes **monitoring** for key Node.js and HTTP metrics, allowing you to track **CPU, memory, event loop lag, and HTTP request latency** in real time. Monitoring is handled using **Prometheus**, **Grafana**, and **Alertmanager**.
+
+### 🔹 Why We Monitor
+
+- **Prometheus** collects metrics from your Node.js service.
+- **Grafana** visualizes these metrics in dashboards.
+- **Alertmanager** sends notifications when thresholds are exceeded (e.g., high CPU or slow requests).
+
+### 🖥 Metrics Collected
+
+| Metric | Description | Alert Rule |
+|--------|------------|------------|
+| CPU Usage | User CPU time (%) | `HighCPUUsage` |
+| Heap Memory Usage | Heap used / heap total (%) | `HighMemoryUsage` |
+| Event Loop Lag | p99 lag (seconds) | `EventLoopLag` |
+| HTTP Request Latency | P95 latency per route (seconds) | `HttpRequestSlow` |
+
+### 🚀 Access Monitoring Services
+
+| Service | URL | Notes |
+|---------|-----|-------|
+| **Prometheus** | [http://localhost:9090](http://localhost:9090) | Collects metrics from Node.js services |
+| **Alertmanager** | [http://localhost:9393](http://localhost:9393) | Handles alerts and notifications |
+| **Grafana** | [http://localhost:3001](http://localhost:3001) | Dashboards for metrics visualization |
+
+### 📌 Dashboards
+
+We provide dashboards for **CPU usage, heap memory, event loop lag, and HTTP request latency**.  
+All dashboards are pre-configured in Grafana and ready to use once the containers are running.
+
+> 💡 Tip: You can extend Grafana dashboards or create new panels based on Prometheus metrics.
+
+---
+
 ## ⚙️ Tech Stack
 
 - **Frontend:** Next.js 15, React 19, TailwindCSS 4

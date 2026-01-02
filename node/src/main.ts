@@ -49,7 +49,9 @@ async function bootstrap() {
   );
 
   // Prefix for all routes: /v1/*
-  app.setGlobalPrefix('v1');
+  app.setGlobalPrefix('v1', {
+    exclude: ['/metrics', '/metrics/alert'],
+  });
 
   // Validate DTOs and sanitize input
   app.useGlobalPipes(

@@ -1,5 +1,21 @@
 # CHANGE LOG
 
+## [1.4.0] - 2026-01-02
+
+### Added
+
+- **Monitoring & Metrics:** Added Prometheus metrics for Node.js and HTTP requests.
+- **Alerting (Alertmanager):**
+  - High CPU usage (>80%)
+  - High Memory usage (>80%)
+  - Event Loop lag >50ms (p99)
+  - Slow HTTP requests (P95 >3s)
+- **Visualization (Grafana):** Dashboards created for CPU, memory, event loop lag, and HTTP latency.
+- **Local access URLs and ports:**
+  - Prometheus: http://localhost:9090 (host port 9090)
+  - Alertmanager: http://localhost:9393 (host port 9393)
+  - Grafana: http://localhost:3001 (host port 3001)
+
 ## [1.3.1] - 2025-12-16
 
 ### Added

@@ -1,0 +1,92 @@
+{
+  "id": null,
+  "uid": "nodejs-metrics",
+  "title": "Node.js App Metrics",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "CPU Usage (%)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_user_seconds_total[1m]) * 100",
+          "legendFormat": "User CPU",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(process_cpu_system_seconds_total[1m]) * 100",
+          "legendFormat": "System CPU",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        { "format": "percent", "min": 0, "max": 100 },
+        { "format": "short" }
+      ],
+      "thresholds": [
+        { "value": 80, "colorMode": "critical", "line": true, "op": "gt" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Memory Usage (Heap %)",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "(nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes) * 100",
+          "legendFormat": "Heap usage",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        { "format": "percent", "min": 0, "max": 100 },
+        { "format": "short" }
+      ],
+      "thresholds": [
+        { "value": 80, "colorMode": "critical", "line": true, "op": "gt" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Event Loop Lag P99 (s)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "nodejs_eventloop_lag_p99_seconds",
+          "legendFormat": "P99 Lag",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        { "format": "s", "min": 0 },
+        { "format": "short" }
+      ],
+      "thresholds": [
+        { "value": 0.05, "colorMode": "warning", "line": true, "op": "gt" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "HTTP Requests P95 Latency (s)",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{route}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        { "format": "s", "min": 0 },
+        { "format": "short" }
+      ],
+      "thresholds": [
+        { "value": 3, "colorMode": "warning", "line": true, "op": "gt" }
+      ]
+    }
+  ]
+}

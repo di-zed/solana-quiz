@@ -1,0 +1,44 @@
+groups:
+  - name: node_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_user_seconds_total[1m]) * 100 > 80
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU usage is high"
+          description: "CPU usage > 80% for the last 30 seconds"
+
+      - alert: HighMemoryUsage
+        expr: (process_heap_bytes / process_heap_size_total_bytes) > 0.8
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Memory usage is high"
+          description: "Process heap usage > 80% for 30s"
+
+      - alert: EventLoopLag
+        expr: nodejs_eventloop_lag_p99_seconds > 0.05
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Event loop lag detected"
+          description: "Event loop p99 lag > 50ms for 15s"
+
+      - alert: HttpRequestSlow
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, route) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          ) > 3
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow HTTP requests"
+          description: "P95 latency > 3s for route {{ $labels.route }}"

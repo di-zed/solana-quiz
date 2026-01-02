@@ -1,0 +1,14 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: 'webhook-receiver'
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+
+receivers:
+  - name: 'webhook-receiver'
+    webhook_configs:
+      - url: 'http://node:3000/metrics/alert'
+        send_resolved: true
