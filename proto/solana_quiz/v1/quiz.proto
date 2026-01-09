@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package solana_quiz.v1;
+
+service QuizService {
+  rpc GetQuizId (GetQuizIdRequest) returns (GetQuizIdResponse);
+}
+
+message GetQuizIdRequest {
+
+}
+
+message GetQuizIdResponse {
+  int32 quizId = 1;
+}

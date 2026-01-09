@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { getRequiredEnv } from './common/utils/config.utils';
+import { getGrpcServerConfig } from './grpc/grpc.config';
 import { getKafkaConsumerConfig } from './kafka/kafka.config';
 
 async function bootstrap() {
@@ -76,7 +77,10 @@ async function bootstrap() {
   // Attach Kafka as a microservice using the shared config.
   app.connectMicroservice(getKafkaConsumerConfig(app.get(ConfigService)));
 
-  // Start Kafka consumers and begin listening to topics.
+  // Attach gRPC as a microservice.
+  app.connectMicroservice(getGrpcServerConfig(app.get(ConfigService)));
+
+  // Start all microservices.
   await app.startAllMicroservices();
 
   // Start server

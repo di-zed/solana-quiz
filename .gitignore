@@ -4,6 +4,9 @@
 
 mounted/*
 
+node/src/grpc/proto
+rust/src/proto
+
 docker-compose.local.yml
 
 volumes/root/.cargo/registry/*

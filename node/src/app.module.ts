@@ -10,6 +10,7 @@ import { MetricsController } from './metrics/metrics.controller';
 import { QuizModule } from './quiz/quiz.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { GrpcModule } from './grpc/grpc.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MetricsModule } from './metrics/metrics.module';
     QuizModule,
     KafkaModule,
     MetricsModule,
+    GrpcModule,
   ],
   controllers: [AppController],
   providers: [AppService],

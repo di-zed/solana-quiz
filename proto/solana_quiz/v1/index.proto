@@ -1,0 +1,4 @@
+syntax = "proto3";
+
+import "quiz.proto";
+import "question.proto";

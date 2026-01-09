@@ -74,6 +74,7 @@ services:
     volumes:
       - ./rust:/home/app
       - ./.env:/home/app/.env
+      - ./proto:/home/app/src/proto
       - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
       - ./volumes/root/.cargo/registry:/root/.cargo/registry
       - ./volumes/root/bash_history/rust:/root/.bash_history:delegated
@@ -92,9 +93,11 @@ services:
     hostname: docker-node
     ports:
       - '${NODE_HOST_PORT}:${NODE_CONTAINER_PORT}'
+      - '${NODE_GRPC_HOST_PORT}:${NODE_GRPC_CONTAINER_PORT}'
     volumes:
       - ./node:/home/app
       - ./.env:/home/app/.env
+      - ./proto:/home/app/src/grpc/proto
       - ./volumes/etc/inputrc:/etc/inputrc:cached # Autocomplete functionality to the Terminal
       - ./volumes/root/bash_history/node:/root/.bash_history:delegated
     environment:

@@ -13,6 +13,7 @@ import { QuizAnswerService } from './quiz-answer.service';
 
 @Module({
   imports: [PrismaModule, OpenaiModule, KafkaModule],
+  exports: [QuizService, QuestionService],
   providers: [
     QuizService,
     QuestionService,

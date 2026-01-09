@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package solana_quiz.v1;
+
+service QuestionService {
+  rpc GetQuestions (GetQuestionsRequest) returns (GetQuestionsResponse);
+}
+
+message GetQuestionsRequest {
+  int32 quizId = 1;
+}
+
+message QuizQuestionOption {
+  int32 id = 1;
+  string option = 2;
+  string createdAt = 3;
+}
+
+message QuizQuestion {
+  int32 id = 1;
+  string question = 2;
+  string answer = 3;
+  repeated QuizQuestionOption options = 4;
+  string createdAt = 5;
+}
+
+message GetQuestionsResponse {
+  repeated QuizQuestion questions = 1;
+}

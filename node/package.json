@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "generate:grpc": "npx grpc_tools_node_protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/grpc/proto/solana_quiz/v1/ts --proto_path=./src/grpc/proto/solana_quiz/v1 ./src/grpc/proto/solana_quiz/v1/index.proto"
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
     "kafka"
   ],
   "dependencies": {
+    "@grpc/proto-loader": "^0.8.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -69,6 +71,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@grpc/grpc-js": "^1.14.3",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -82,6 +85,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
+    "grpc-tools": "^1.13.1",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "prisma": "^7.0.1",
@@ -90,6 +94,7 @@
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
+    "ts-proto": "^2.10.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
