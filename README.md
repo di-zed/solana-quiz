@@ -41,22 +41,13 @@ All services are orchestrated via **Docker Compose** and communicate through **K
 
 ## 📊 Monitoring & Metrics
 
-This project now includes **monitoring** for key Node.js and HTTP metrics, allowing you to track **CPU, memory, event loop lag, and HTTP request latency** in real time. Monitoring is handled using **Prometheus**, **Grafana**, and **Alertmanager**.
+This project now includes **monitoring** for key Node.js and HTTP metrics. Monitoring is handled using **Prometheus**, **Grafana**, and **Alertmanager**.
 
 ### 🔹 Why We Monitor
 
 - **Prometheus** collects metrics from your Node.js service.
 - **Grafana** visualizes these metrics in dashboards.
 - **Alertmanager** sends notifications when thresholds are exceeded (e.g., high CPU or slow requests).
-
-### 🖥 Metrics Collected
-
-| Metric | Description | Alert Rule |
-|--------|------------|------------|
-| CPU Usage | User CPU time (%) | `HighCPUUsage` |
-| Heap Memory Usage | Heap used / heap total (%) | `HighMemoryUsage` |
-| Event Loop Lag | p99 lag (seconds) | `EventLoopLag` |
-| HTTP Request Latency | P95 latency per route (seconds) | `HttpRequestSlow` |
 
 ### 🚀 Access Monitoring Services
 

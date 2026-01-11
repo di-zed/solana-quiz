@@ -3,89 +3,108 @@
   "uid": "nodejs-metrics",
   "title": "Node.js App Metrics",
   "timezone": "browser",
-  "schemaVersion": 36,
+  "schemaVersion": 38,
   "version": 1,
   "refresh": "10s",
   "panels": [
     {
-      "type": "graph",
-      "title": "CPU Usage (%)",
-      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "type": "timeseries",
+      "title": "RPS",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 },
       "targets": [
         {
-          "expr": "rate(process_cpu_user_seconds_total[1m]) * 100",
-          "legendFormat": "User CPU",
-          "refId": "A"
+          "expr": "sum(rate(http_request_duration_seconds_count[1m]))",
+          "legendFormat": "RPS"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Latency p50/p95/p99",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p50"
         },
         {
-          "expr": "rate(process_cpu_system_seconds_total[1m]) * 100",
-          "legendFormat": "System CPU",
-          "refId": "B"
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p99"
         }
-      ],
-      "yaxes": [
-        { "format": "percent", "min": 0, "max": 100 },
-        { "format": "short" }
-      ],
-      "thresholds": [
-        { "value": 80, "colorMode": "critical", "line": true, "op": "gt" }
       ]
     },
     {
-      "type": "graph",
-      "title": "Memory Usage (Heap %)",
-      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "type": "timeseries",
+      "title": "Event Loop Lag",
+      "gridPos": { "x": 0, "y": 6, "w": 12, "h": 6 },
       "targets": [
-        {
-          "expr": "(nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes) * 100",
-          "legendFormat": "Heap usage",
-          "refId": "B"
-        }
-      ],
-      "yaxes": [
-        { "format": "percent", "min": 0, "max": 100 },
-        { "format": "short" }
-      ],
-      "thresholds": [
-        { "value": 80, "colorMode": "critical", "line": true, "op": "gt" }
+        { "expr": "nodejs_eventloop_lag_p50_seconds", "legendFormat": "p50" },
+        { "expr": "nodejs_eventloop_lag_p90_seconds", "legendFormat": "p90" },
+        { "expr": "nodejs_eventloop_lag_p99_seconds", "legendFormat": "p99" }
       ]
     },
     {
-      "type": "graph",
-      "title": "Event Loop Lag P99 (s)",
-      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "type": "timeseries",
+      "title": "Heap Usage %",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 6 },
       "targets": [
         {
-          "expr": "nodejs_eventloop_lag_p99_seconds",
-          "legendFormat": "P99 Lag",
-          "refId": "A"
+          "expr": "nodejs_heap_size_used_bytes / process_heap_bytes * 100",
+          "legendFormat": "heap % of reserved"
         }
-      ],
-      "yaxes": [
-        { "format": "s", "min": 0 },
-        { "format": "short" }
-      ],
-      "thresholds": [
-        { "value": 0.05, "colorMode": "warning", "line": true, "op": "gt" }
       ]
     },
     {
-      "type": "graph",
-      "title": "HTTP Requests P95 Latency (s)",
-      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "type": "timeseries",
+      "title": "Memory RSS",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "process_resident_memory_bytes", "legendFormat": "RSS" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "GC per second",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 6 },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m])))",
-          "legendFormat": "{{route}}",
-          "refId": "A"
+          "expr": "rate(nodejs_gc_duration_seconds_count{kind=\"minor\"}[1m])",
+          "legendFormat": "minor GC"
+        },
+        {
+          "expr": "rate(nodejs_gc_duration_seconds_count{kind=\"major\"}[1m])",
+          "legendFormat": "major GC"
         }
-      ],
-      "yaxes": [
-        { "format": "s", "min": 0 },
-        { "format": "short" }
-      ],
-      "thresholds": [
-        { "value": 3, "colorMode": "warning", "line": true, "op": "gt" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU Usage",
+      "gridPos": { "x": 0, "y": 18, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[1m])",
+          "legendFormat": "CPU cores"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Active Handles & FDs",
+      "gridPos": { "x": 12, "y": 18, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "nodejs_active_handles_total",
+          "legendFormat": "handles"
+        },
+        {
+          "expr": "process_open_fds",
+          "legendFormat": "open fds"
+        }
       ]
     }
   ]

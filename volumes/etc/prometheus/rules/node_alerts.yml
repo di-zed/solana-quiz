@@ -1,33 +1,103 @@
 groups:
   - name: node_alerts
     rules:
-      - alert: HighCPUUsage
-        expr: rate(process_cpu_user_seconds_total[1m]) * 100 > 80
-        for: 30s
-        labels:
-          severity: critical
-        annotations:
-          summary: "CPU usage is high"
-          description: "CPU usage > 80% for the last 30 seconds"
 
-      - alert: HighMemoryUsage
-        expr: (process_heap_bytes / process_heap_size_total_bytes) > 0.8
-        for: 30s
-        labels:
-          severity: critical
-        annotations:
-          summary: "Memory usage is high"
-          description: "Process heap usage > 80% for 30s"
-
-      - alert: EventLoopLag
-        expr: nodejs_eventloop_lag_p99_seconds > 0.05
-        for: 15s
+      # =====================
+      # EVENT LOOP
+      # =====================
+      - alert: NodeEventLoopLagHigh
+        expr: nodejs_eventloop_lag_p99 > 0.1
+        for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "Event loop lag detected"
-          description: "Event loop p99 lag > 50ms for 15s"
+          description: "Event loop lag p99 > 100ms"
+          summary: "Node.js is under heavy load"
 
+      - alert: NodeEventLoopLagCritical
+        expr: nodejs_eventloop_lag_p99 > 0.3
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          description: "Event loop lag p99 > 300ms"
+          summary: "Node.js is effectively blocked"
+
+
+      # =====================
+      # HEAP / MEMORY
+      # =====================
+      - alert: NodeHeapAlmostFull
+        expr: nodejs_heap_size_used_bytes / process_heap_bytes > 0.8
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Node heap usage > 80% of reserved memory"
+          description: "GC pressure rising. Heap usage is high relative to memory actually reserved by the process."
+
+      - alert: NodeHeapCritical
+        expr: nodejs_heap_size_used_bytes / process_heap_bytes > 0.9
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node heap > 90% of reserved memory"
+          description: "Heap usage is dangerously high, OOM likely soon."
+
+
+      # =====================
+      # GC STORM
+      # =====================
+      - alert: NodeMajorGCStorm
+        expr: rate(nodejs_gc_duration_seconds_count{kind="major"}[1m]) > 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Too many Major GCs"
+          description: "Memory churn detected"
+
+
+      # =====================
+      # CPU
+      # =====================
+      - alert: NodeCpuSaturated
+        expr: rate(process_cpu_seconds_total[1m]) > 0.9
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU saturated"
+
+
+      # =====================
+      # FD leak
+      # =====================
+      - alert: NodeFdLeak
+        expr: process_open_fds / process_max_fds > 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "File descriptor leak detected"
+
+
+      # =====================
+      # HANDLES / LEAK
+      # =====================
+      - alert: NodeHandleLeak
+        expr: nodejs_active_handles_total > 200
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Node.js active handles growing"
+
+
+      # =====================
+      # SLOW HTTP REQUEST
+      # =====================
       - alert: HttpRequestSlow
         expr: |
           histogram_quantile(

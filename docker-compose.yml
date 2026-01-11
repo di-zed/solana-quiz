@@ -92,6 +92,7 @@ services:
     hostname: docker-node
     ports:
       - '${NODE_HOST_PORT}:${NODE_CONTAINER_PORT}'
+      - '9229:9229' # debug
     volumes:
       - ./node:/home/app
       - ./.env:/home/app/.env
