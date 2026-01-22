@@ -1,4 +1,7 @@
+import { InsertResult } from '@clickhouse/client-common/dist/client';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { QuizAnswer, QuizReward } from '../../generated/prisma/client';
+import { ClickHouseService } from '../clickhouse/clickhouse.service';
 import { KafkaProducerService } from '../kafka/kafka-producer.service';
 import { REWARD_TOPICS } from '../kafka/topics/reward-topics';
 import { SolanaQuizReward } from './types/solana-quiz-reward.type';
@@ -18,6 +21,7 @@ export class QuizAnswerService {
     private answerService: AnswerService,
     private rewardService: RewardService,
     private kafkaProducerService: KafkaProducerService,
+    private clickHouseService: ClickHouseService,
   ) {}
 
   /**
@@ -54,6 +58,8 @@ export class QuizAnswerService {
       throw new BadRequestException('The answer could not be processed');
     }
 
+    await this.saveClickHouseAnswer(quizAnswer);
+
     // Determine the correct option ID (default to selected if answer is correct)
     let correctOptionId = answer.optionId;
 
@@ -84,24 +90,28 @@ export class QuizAnswerService {
         quizData,
       );
 
-      // Apply rewards only if tokens were actually earned
-      if (quizReward && quizReward.earnedTokens > 0) {
-        earnedTokens = quizReward.earnedTokens;
-        streakDays = quizReward.streakDays;
+      if (quizReward) {
+        await this.saveClickHouseReward(quizReward);
 
-        this.kafkaProducerService.emit(
-          REWARD_TOPICS.REWARD_GRANTED,
-          <SolanaQuizReward>{
-            user_id: user.id,
-            user_wallet: user.wallet,
-            quiz_id: quizId,
-            total_questions: quizReward.totalQuestions,
-            correct_answers: quizReward.correctAnswers,
-            earned_tokens: quizReward.earnedTokens,
-            streak_days: quizReward.streakDays,
-          },
-          `user_${user.id}`,
-        );
+        // Apply rewards only if tokens were actually earned
+        if (quizReward.earnedTokens > 0) {
+          earnedTokens = quizReward.earnedTokens;
+          streakDays = quizReward.streakDays;
+
+          this.kafkaProducerService.emit(
+            REWARD_TOPICS.REWARD_GRANTED,
+            <SolanaQuizReward>{
+              user_id: user.id,
+              user_wallet: user.wallet,
+              quiz_id: quizId,
+              total_questions: quizReward.totalQuestions,
+              correct_answers: quizReward.correctAnswers,
+              earned_tokens: quizReward.earnedTokens,
+              streak_days: quizReward.streakDays,
+            },
+            `user_${user.id}`,
+          );
+        }
       }
     }
 
@@ -114,5 +124,45 @@ export class QuizAnswerService {
       earnedTokens,
       streakDays,
     };
+  }
+
+  /**
+   * Save Click House Answer.
+   *
+   * @param quizAnswer
+   * @returns Promise<InsertResult>
+   * @protected
+   */
+  protected async saveClickHouseAnswer(
+    quizAnswer: QuizAnswer,
+  ): Promise<InsertResult> {
+    return this.clickHouseService.saveAnswer({
+      quiz_id: quizAnswer.quizId,
+      user_id: quizAnswer.userId,
+      question_id: quizAnswer.questionId,
+      option_id: quizAnswer.optionId,
+      is_correct: quizAnswer.isCorrect,
+    });
+  }
+
+  /**
+   * Save Click House Reward.
+   *
+   * @param quizReward
+   * @returns Promise<InsertResult>
+   * @protected
+   */
+  protected async saveClickHouseReward(
+    quizReward: QuizReward,
+  ): Promise<InsertResult> {
+    return this.clickHouseService.saveReward({
+      quiz_id: quizReward.quizId,
+      user_id: quizReward.userId,
+      total_questions: quizReward.totalQuestions,
+      correct_answers: quizReward.correctAnswers,
+      wrong_answers: quizReward.wrongAnswers,
+      earned_tokens: quizReward.earnedTokens,
+      streak_days: quizReward.streakDays,
+    });
   }
 }

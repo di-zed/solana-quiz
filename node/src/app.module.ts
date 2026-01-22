@@ -10,6 +10,7 @@ import { MetricsController } from './metrics/metrics.controller';
 import { QuizModule } from './quiz/quiz.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { ClickHouseModule } from './clickhouse/clickhouse.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MetricsModule } from './metrics/metrics.module';
     QuizModule,
     KafkaModule,
     MetricsModule,
+    ClickHouseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

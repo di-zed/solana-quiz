@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ClickHouseModule } from '../clickhouse/clickhouse.module';
 import { KafkaModule } from '../kafka/kafka.module';
 import { OpenaiModule } from '../openai/openai.module';
 import { PrismaModule } from '../prisma/prisma.module';
@@ -12,7 +13,7 @@ import { QuizTasksService } from './quiz-tasks.service';
 import { QuizAnswerService } from './quiz-answer.service';
 
 @Module({
-  imports: [PrismaModule, OpenaiModule, KafkaModule],
+  imports: [PrismaModule, OpenaiModule, KafkaModule, ClickHouseModule],
   providers: [
     QuizService,
     QuestionService,

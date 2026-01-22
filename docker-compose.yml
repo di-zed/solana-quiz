@@ -104,6 +104,7 @@ services:
     working_dir: /home/app
     depends_on:
       - kafka1
+      - clickhouse
       - rust
     networks:
       - internal
@@ -182,11 +183,31 @@ services:
     networks:
       - internal
 
+  clickhouse:
+    container_name: clickhouse-sq
+    image: clickhouse/clickhouse-server:23.12.6.19
+    hostname: docker-clickhouse
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+      - '${CLICKHOUSE_HOST_PORT}:${CLICKHOUSE_CONTAINER_PORT}'
+      - '${CLICKHOUSE_CLIENT_HOST_PORT}:${CLICKHOUSE_CLIENT_CONTAINER_PORT}'
+    networks:
+      - internal
+
 volumes:
   kafka_data:
   postgres_data:
   prometheus_data:
   grafana_data:
+  clickhouse_data:
+  clickhouse_logs:
 
 networks:
   internal:
