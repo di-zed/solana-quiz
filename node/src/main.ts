@@ -77,7 +77,7 @@ async function bootstrap() {
   app.connectMicroservice(getKafkaConsumerConfig(app.get(ConfigService)));
 
   // Start Kafka consumers and begin listening to topics.
-  // await app.startAllMicroservices();
+  await app.startAllMicroservices();
 
   // Start server
   await app.listen(getRequiredEnv('NODE_CONTAINER_PORT'));
